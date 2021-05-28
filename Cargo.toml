@@ -1,0 +1,23 @@
+[package]
+name = "systemd-journal-logger"
+version = "0.1.0"
+authors = ["Sebastian Wiesner <sebastian@swsnr.de>"]
+license = "MIT OR Apache-2.0"
+readme = "README.md"
+repository = "https://github.com/lunaryorn/systemd-journal-logger.rs"
+documentation = "https://docs.rs/systemd-journal-logger"
+description = """
+Systemd journal logger for the log facade
+"""
+categories = ["development-tools::debugging"]
+keywords = ["logging", "systemd", "journal"]
+edition = "2018"
+
+[dependencies]
+log = "^0.4"
+libsystemd = "^0.2"
+
+[dev-dependencies]
+pretty_assertions = "^0.7"
+serde_json = "^1"
+serde = "^1"
