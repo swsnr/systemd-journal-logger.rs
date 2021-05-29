@@ -9,31 +9,9 @@
 use std::process::Command;
 
 use log::{warn, LevelFilter};
-use serde::Deserialize;
+use std::collections::HashMap;
 
-#[derive(Debug, Deserialize)]
-#[serde(rename_all = "UPPERCASE")]
-struct JournalEntry {
-    priority: String,
-    message: String,
-    target: String,
-    code_file: String,
-    code_line: String,
-    rust_module_path: String,
-    syslog_identifier: String,
-    syslog_pid: String,
-    #[serde(rename = "_PID")]
-    pid: String,
-}
-
-#[test]
-fn log_to_journal() {
-    systemd_journal_logger::init().unwrap();
-
-    log::set_max_level(LevelFilter::Info);
-
-    warn!(target: "systemd_journal_logger/log_to_journal", "systemd_journal_logger test: {}", 42);
-
+fn read_from_journal() -> Vec<HashMap<String, String>> {
     let stdout = String::from_utf8(
         Command::new("journalctl")
             .args(&["--user", "--output=json"])
@@ -46,24 +24,36 @@ fn log_to_journal() {
     )
     .unwrap();
 
-    let messages: Vec<&str> = stdout.lines().collect();
-    assert_eq!(messages.len(), 1);
+    stdout
+        .lines()
+        .map(|l| serde_json::from_str(l).unwrap())
+        .collect()
+}
 
-    let entry: JournalEntry = serde_json::from_str(messages[0]).unwrap();
+#[test]
+fn simple_log_entry() {
+    systemd_journal_logger::init().ok();
+    log::set_max_level(LevelFilter::Info);
+
+    warn!(target: "systemd_journal_logger/simple_log_entry", "systemd_journal_logger test: {}", 42);
+
+    let entries = read_from_journal();
+    assert_eq!(entries.len(), 1);
+    let entry = &entries[0];
 
     assert_eq!(
-        entry.priority.parse::<u8>().unwrap(),
-        u8::from(libsystemd::logging::Priority::Warning)
+        entry["PRIORITY"],
+        u8::from(libsystemd::logging::Priority::Warning).to_string()
     );
-    assert_eq!(entry.message, "systemd_journal_logger test: 42");
-    assert_eq!(entry.code_file, file!());
-    assert_eq!(entry.code_line, "35");
-    assert_eq!(entry.rust_module_path, module_path!());
-    assert_eq!(entry.target, "systemd_journal_logger/log_to_journal");
+    assert_eq!(entry["MESSAGE"], "systemd_journal_logger test: 42");
+    assert_eq!(entry["CODE_FILE"], file!());
+    assert_eq!(entry["CODE_LINE"], "38");
+    assert_eq!(entry["RUST_MODULE_PATH"], module_path!());
+    assert_eq!(entry["TARGET"], "systemd_journal_logger/simple_log_entry");
 
-    assert!(entry.syslog_identifier.contains("log_to_journal"));
+    assert!(entry["SYSLOG_IDENTIFIER"].contains("log_to_journal"));
     assert_eq!(
-        entry.syslog_identifier,
+        entry["SYSLOG_IDENTIFIER"],
         std::env::current_exe()
             .unwrap()
             .file_name()
@@ -72,7 +62,7 @@ fn log_to_journal() {
             .unwrap()
     );
 
-    assert_eq!(entry.syslog_pid, std::process::id().to_string());
-    // The PID we logged is equal to the PID systemd determined as source for our process
-    assert_eq!(entry.syslog_pid, entry.pid);
+    assert_eq!(entry["SYSLOG_PID"], std::process::id().to_string());
+    // // The PID we logged is equal to the PID systemd determined as source for our process
+    assert_eq!(entry["SYSLOG_PID"], entry["_PID"]);
 }
