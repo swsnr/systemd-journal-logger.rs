@@ -21,7 +21,7 @@ use log::{info, LevelFilter};
 fn main() {
     systemd_journal_logger::init();
     log::set_max_level(LevelFilter::Info);
-    
+
     info!("Hello systemd journal");
 }
 ```
