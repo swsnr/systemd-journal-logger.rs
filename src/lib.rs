@@ -56,8 +56,8 @@
 //!
 //! - [`Level::Error`] → [`libsystemd::logging::Priority::Error`]
 //! - [`Level::Warn`] → [`libsystemd::logging::Priority::Warning`]
-//! - [`Level::Info`] → [`libsystemd::logging::Priority::Info`]
-//! - [`Level::Debug`] → [`libsystemd::logging::Priority::Debug`]
+//! - [`Level::Info`] → [`libsystemd::logging::Priority::Notice`]
+//! - [`Level::Debug`] → [`libsystemd::logging::Priority::Info`]
 //! - [`Level::Trace`] → [`libsystemd::logging::Priority::Debug`]
 
 use std::borrow::Cow;
@@ -73,8 +73,8 @@ fn level_to_priority(level: Level) -> Priority {
     match level {
         Level::Error => Priority::Error,
         Level::Warn => Priority::Warning,
-        Level::Info => Priority::Info,
-        Level::Debug => Priority::Debug,
+        Level::Info => Priority::Notice,
+        Level::Debug => Priority::Info,
         Level::Trace => Priority::Debug,
     }
 }
@@ -183,11 +183,11 @@ mod tests {
         ));
         assert!(matches!(
             crate::level_to_priority(Level::Info),
-            Priority::Info
+            Priority::Notice
         ));
         assert!(matches!(
             crate::level_to_priority(Level::Debug),
-            Priority::Debug
+            Priority::Info
         ));
         assert!(matches!(
             crate::level_to_priority(Level::Trace),
