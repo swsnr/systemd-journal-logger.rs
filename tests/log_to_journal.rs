@@ -11,13 +11,14 @@ use std::process::Command;
 use log::{warn, LevelFilter};
 use std::collections::HashMap;
 
-fn read_from_journal() -> Vec<HashMap<String, String>> {
+fn read_from_journal(target: &str) -> Vec<HashMap<String, String>> {
     let stdout = String::from_utf8(
         Command::new("journalctl")
             .args(&["--user", "--output=json"])
             // Filter by the PID of the current test process and the module path
             .arg(format!("_PID={}", std::process::id()))
             .arg(format!("MODULE_PATH={}", module_path!()))
+            .arg(format!("TARGET={}", target))
             .output()
             .unwrap()
             .stdout,
@@ -37,7 +38,7 @@ fn simple_log_entry() {
 
     warn!(target: "systemd_journal_logger/simple_log_entry", "systemd_journal_logger test: {}", 42);
 
-    let entries = read_from_journal();
+    let entries = read_from_journal("systemd_journal_logger/simple_log_entry");
     assert_eq!(entries.len(), 1);
     let entry = &entries[0];
 
@@ -47,7 +48,7 @@ fn simple_log_entry() {
     );
     assert_eq!(entry["MESSAGE"], "systemd_journal_logger test: 42");
     assert_eq!(entry["CODE_FILE"], file!());
-    assert_eq!(entry["CODE_LINE"], "38");
+    assert_eq!(entry["CODE_LINE"], "39");
     assert_eq!(entry["MODULE_PATH"], module_path!());
     assert_eq!(entry["TARGET"], "systemd_journal_logger/simple_log_entry");
 
@@ -65,4 +66,28 @@ fn simple_log_entry() {
     assert_eq!(entry["SYSLOG_PID"], std::process::id().to_string());
     // // The PID we logged is equal to the PID systemd determined as source for our process
     assert_eq!(entry["SYSLOG_PID"], entry["_PID"]);
+}
+
+#[test]
+fn multiline_message() {
+    systemd_journal_logger::init().ok();
+    log::set_max_level(LevelFilter::Info);
+
+    warn!(target: "systemd_journal_logger/multiline_message", "systemd_journal_logger test\nwith\nline {}", "breaks");
+
+    let entries = read_from_journal("systemd_journal_logger/multiline_message");
+    assert_eq!(entries.len(), 1);
+    let entry = &entries[0];
+
+    assert_eq!(
+        entry["PRIORITY"],
+        u8::from(libsystemd::logging::Priority::Warning).to_string()
+    );
+    assert_eq!(
+        entry["MESSAGE"],
+        "systemd_journal_logger test\nwith\nline breaks"
+    );
+    assert_eq!(entry["CODE_FILE"], file!());
+    assert_eq!(entry["CODE_LINE"], "76");
+    assert_eq!(entry["TARGET"], "systemd_journal_logger/multiline_message");
 }
