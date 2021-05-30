@@ -17,7 +17,7 @@ fn read_from_journal() -> Vec<HashMap<String, String>> {
             .args(&["--user", "--output=json"])
             // Filter by the PID of the current test process and the module path
             .arg(format!("_PID={}", std::process::id()))
-            .arg(format!("RUST_MODULE_PATH={}", module_path!()))
+            .arg(format!("MODULE_PATH={}", module_path!()))
             .output()
             .unwrap()
             .stdout,
@@ -48,7 +48,7 @@ fn simple_log_entry() {
     assert_eq!(entry["MESSAGE"], "systemd_journal_logger test: 42");
     assert_eq!(entry["CODE_FILE"], file!());
     assert_eq!(entry["CODE_LINE"], "38");
-    assert_eq!(entry["RUST_MODULE_PATH"], module_path!());
+    assert_eq!(entry["MODULE_PATH"], module_path!());
     assert_eq!(entry["TARGET"], "systemd_journal_logger/simple_log_entry");
 
     assert!(entry["SYSLOG_IDENTIFIER"].contains("log_to_journal"));

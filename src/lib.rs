@@ -110,7 +110,7 @@ fn standard_fields<'a>(record: &'a Record) -> Vec<(&'static str, Cow<'a, str>)> 
     // Non-standard fields
     fields.push(("TARGET", record.target().into()));
     if let Some(module) = record.module_path() {
-        fields.push(("RUST_MODULE_PATH", module.into()))
+        fields.push(("MODULE_PATH", module.into()))
     }
     fields
 }
@@ -223,7 +223,7 @@ mod tests {
                 ("CODE_LINE", Cow::Borrowed("10")),
                 ("TARGET", Cow::Borrowed("testlog")),
                 (
-                    "RUST_MODULE_PATH",
+                    "MODULE_PATH",
                     Cow::Borrowed("systemd_journal_logger::tests")
                 )
             ]
