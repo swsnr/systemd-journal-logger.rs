@@ -75,6 +75,16 @@
 //! - [`Level::Info`] → [`libsystemd::logging::Priority::Notice`]
 //! - [`Level::Debug`] → [`libsystemd::logging::Priority::Info`]
 //! - [`Level::Trace`] → [`libsystemd::logging::Priority::Debug`]
+//!
+//! # Errors
+//!
+//! This crate currently does not implement any kind of error handling for journal messages.
+//!
+//! In particular it will **panic** when sending a record to journald fails, e.g. if journald is
+//! not running.
+//!
+//! Given that journald on systemd systems is pretty essential and very reliable there are currently
+//! no plans to change this behaviour.
 
 use std::borrow::Cow;
 
@@ -187,6 +197,11 @@ where
     }
 
     /// Send the given `record` to the systemd journal.
+    ///
+    /// # Errors
+    ///
+    /// **Panic** if sending the `record` to journald fails,
+    /// i.e. if journald is not running.
     fn log(&self, record: &Record) {
         let fields = standard_fields(record);
         journal_send(
@@ -198,8 +213,7 @@ where
                     .map(|(k, v)| (k.as_ref(), Cow::Borrowed(v.as_ref()))),
             ),
         )
-        // TODO: Figure out how to handle journal write failures
-        .ok();
+        .unwrap();
     }
 
     /// Flush log records.

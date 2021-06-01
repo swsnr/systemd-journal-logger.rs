@@ -14,6 +14,9 @@ Run [`cargo-release`][cr] to publish a release.
 ### Added
 - Add `JournalLog::with_extra_fields` and `init_with_extra_fields` to add custom fields to every log entry (see [GH-3]).
 
+### Changed
+- Do not silently ignore journal errors; instead panic if the logger fails to send a message to the systemd journal.
+
 [GH-3]: https://github.com/lunaryorn/systemd-journal-logger.rs/pull/3
 
 ## [0.2.0] – 2021-06-01
