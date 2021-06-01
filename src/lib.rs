@@ -85,10 +85,14 @@
 //!
 //! Given that journald on systemd systems is pretty essential and very reliable there are currently
 //! no plans to change this behaviour.
+//!
+//! To implement an alternative error handling behaviour define a custom log implementation around
+//! [`journal_send`] which sends a single log record to the journal.
 
 use std::borrow::Cow;
 
-use libsystemd::logging::{journal_send, Priority};
+use libsystemd::errors::SdError;
+use libsystemd::logging::Priority;
 use log::{Level, Log, Metadata, Record, SetLoggerError};
 
 /// A systemd journal logger.
@@ -142,6 +146,29 @@ fn standard_fields<'a>(record: &'a Record) -> Vec<(&'static str, Cow<'a, str>)> 
         fields.push(("MODULE_PATH", module.into()))
     }
     fields
+}
+
+/// Send a single log record to the journal.
+///
+/// Extract the standard fields from `record` (see [`crate`] documentation),
+/// and append all `extra_fields`; the send the resulting fields to the
+/// systemd journal with [`libsystemd::logging::journal_send`] and return
+/// the result of that function.
+pub fn journal_send<'a, K, V>(
+    record: &Record,
+    extra_fields: impl Iterator<Item = &'a (K, V)>,
+) -> Result<(), SdError>
+where
+    K: AsRef<str> + 'a,
+    V: AsRef<str> + 'a,
+{
+    libsystemd::logging::journal_send(
+        level_to_priority(record.level()),
+        &format!("{}", record.args()),
+        standard_fields(record)
+            .into_iter()
+            .chain(extra_fields.map(|(k, v)| (k.as_ref(), Cow::Borrowed(v.as_ref())))),
+    )
 }
 
 impl<K, V> JournalLog<K, V>
@@ -203,17 +230,7 @@ where
     /// **Panic** if sending the `record` to journald fails,
     /// i.e. if journald is not running.
     fn log(&self, record: &Record) {
-        let fields = standard_fields(record);
-        journal_send(
-            level_to_priority(record.level()),
-            &format!("{}", record.args()),
-            fields.into_iter().chain(
-                self.extra_fields
-                    .iter()
-                    .map(|(k, v)| (k.as_ref(), Cow::Borrowed(v.as_ref()))),
-            ),
-        )
-        .unwrap();
+        journal_send(record, self.extra_fields.iter()).unwrap();
     }
 
     /// Flush log records.
