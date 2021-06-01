@@ -6,6 +6,8 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
+#![deny(warnings, clippy::all)]
+
 use std::process::Command;
 
 use log::{warn, LevelFilter};
@@ -64,7 +66,7 @@ fn simple_log_entry() {
     );
     assert_eq!(entry["MESSAGE"], "systemd_journal_logger test: 42");
     assert_eq!(entry["CODE_FILE"], file!());
-    assert_eq!(entry["CODE_LINE"], "55");
+    assert_eq!(entry["CODE_LINE"], "57");
     assert_eq!(entry["MODULE_PATH"], module_path!());
     assert_eq!(entry["TARGET"], target);
 
@@ -109,6 +111,6 @@ fn multiline_message() {
         "systemd_journal_logger test\nwith\nline breaks"
     );
     assert_eq!(entry["CODE_FILE"], file!());
-    assert_eq!(entry["CODE_LINE"], "94");
+    assert_eq!(entry["CODE_LINE"], "96");
     assert_eq!(entry["TARGET"], target);
 }
