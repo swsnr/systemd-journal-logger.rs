@@ -89,7 +89,7 @@ fn multiline_message() {
     systemd_journal_logger::init().ok();
     log::set_max_level(LevelFilter::Info);
 
-    let target = format!("systemd_journal_logger/multiline_message");
+    let target = random_target("systemd_journal_logger/multiline_message");
 
     warn!(
         target: &target,
