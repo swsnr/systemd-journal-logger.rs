@@ -9,7 +9,21 @@
 use std::process::Command;
 
 use log::{warn, LevelFilter};
+use rand::distributions::Alphanumeric;
+use rand::Rng;
 use std::collections::HashMap;
+
+fn random_target(prefix: &str) -> String {
+    format!(
+        "{}-{}",
+        prefix,
+        rand::thread_rng()
+            .sample_iter(&Alphanumeric)
+            .take(10)
+            .map(char::from)
+            .collect::<String>()
+    )
+}
 
 fn read_from_journal(target: &str) -> Vec<HashMap<String, String>> {
     let stdout = String::from_utf8(
@@ -36,9 +50,11 @@ fn simple_log_entry() {
     systemd_journal_logger::init().ok();
     log::set_max_level(LevelFilter::Info);
 
-    warn!(target: "systemd_journal_logger/simple_log_entry", "systemd_journal_logger test: {}", 42);
+    let target = random_target("systemd_journal_logger/simple_log_entry");
 
-    let entries = read_from_journal("systemd_journal_logger/simple_log_entry");
+    warn!(target: &target, "systemd_journal_logger test: {}", 42);
+
+    let entries = read_from_journal(&target);
     assert_eq!(entries.len(), 1);
     let entry = &entries[0];
 
@@ -48,9 +64,9 @@ fn simple_log_entry() {
     );
     assert_eq!(entry["MESSAGE"], "systemd_journal_logger test: 42");
     assert_eq!(entry["CODE_FILE"], file!());
-    assert_eq!(entry["CODE_LINE"], "39");
+    assert_eq!(entry["CODE_LINE"], "55");
     assert_eq!(entry["MODULE_PATH"], module_path!());
-    assert_eq!(entry["TARGET"], "systemd_journal_logger/simple_log_entry");
+    assert_eq!(entry["TARGET"], target);
 
     assert!(entry["SYSLOG_IDENTIFIER"].contains("log_to_journal"));
     assert_eq!(
@@ -73,9 +89,14 @@ fn multiline_message() {
     systemd_journal_logger::init().ok();
     log::set_max_level(LevelFilter::Info);
 
-    warn!(target: "systemd_journal_logger/multiline_message", "systemd_journal_logger test\nwith\nline {}", "breaks");
+    let target = format!("systemd_journal_logger/multiline_message");
 
-    let entries = read_from_journal("systemd_journal_logger/multiline_message");
+    warn!(
+        target: &target,
+        "systemd_journal_logger test\nwith\nline {}", "breaks"
+    );
+
+    let entries = read_from_journal(&target);
     assert_eq!(entries.len(), 1);
     let entry = &entries[0];
 
@@ -88,6 +109,6 @@ fn multiline_message() {
         "systemd_journal_logger test\nwith\nline breaks"
     );
     assert_eq!(entry["CODE_FILE"], file!());
-    assert_eq!(entry["CODE_LINE"], "76");
-    assert_eq!(entry["TARGET"], "systemd_journal_logger/multiline_message");
+    assert_eq!(entry["CODE_LINE"], "94");
+    assert_eq!(entry["TARGET"], target);
 }
