@@ -11,6 +11,11 @@ Run [`cargo-release`][cr] to publish a release.
 
 ## [Unreleased]
 
+### Added
+- Add `JournalLog::with_extra_fields` and `init_with_extra_fields` to add custom fields to every log entry (see [GH-3]).
+
+[GH-3]: https://github.com/lunaryorn/systemd-journal-logger.rs/pull/3
+
 ## [0.2.0] – 2021-06-01
 
 ### Fixed

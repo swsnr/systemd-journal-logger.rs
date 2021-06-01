@@ -34,7 +34,7 @@
 //!
 //! # Journal fields
 //!
-//! The journald logger always sets the following standard [journal fields][2]
+//! The journald logger always sets the following standard [journal fields][2]:
 //!
 //! - `PRIORITY`: The log level mapped to a priority (see below).
 //! - `MESSAGE`: The formatted log message (see [`log::Record::args()`]).
@@ -47,6 +47,22 @@
 //!
 //! - `TARGET`: The target of the log record (see [`log::Record::target()`]).
 //! - `RUST_MODULE_PATH`: The module path of the log record (see [`log::Record::module_path()`], only if present).
+//!
+//! You can add custom fields to every log entry with [`JournalLog::with_extra_fields`] and [`init_with_extra_fields`]:
+//!
+//! ```edition2018
+//! use log::{info, warn, error, LevelFilter};
+//!
+//! # fn main(){
+//! systemd_journal_logger::init_with_extra_fields(vec![("VERSION", "0.0.1")]).unwrap();
+//! log::set_max_level(LevelFilter::Info);
+//!
+//! info!("this message has an extra VERSION field in the journal");
+//! # }
+//! ```
+//!
+//! You can display extra fields with `journalctl --output=verbose` and extract them with any of the structured
+//! output formats of `journalctl`, e.g. `journalctl --output=json`.
 //!
 //! [2]: https://www.freedesktop.org/software/systemd/man/systemd.journal-fields.html
 //!
@@ -66,7 +82,10 @@ use libsystemd::logging::{journal_send, Priority};
 use log::{Level, Log, Metadata, Record, SetLoggerError};
 
 /// A systemd journal logger.
-pub struct JournalLog;
+pub struct JournalLog<K, V> {
+    /// Extra fields to add to every logged message.
+    extra_fields: Vec<(K, V)>,
+}
 
 /// Convert a a log level to a journal priority.
 fn level_to_priority(level: Level) -> Priority {
@@ -85,7 +104,7 @@ fn level_to_priority(level: Level) -> Priority {
 ///
 /// - the standard `SYSLOG_IDENTIFIER` and `SYSLOG_PID` fields to the short name (if it exists)
 ///   and the PID of the current process.
-/// - the sta`  ndard `CODE_FILE` and `CODE_LINE` fields to the file and line of `record`,
+/// - the standard `CODE_FILE` and `CODE_LINE` fields to the file and line of `record`,
 /// - the custom `TARGET` field to `record.target`, and
 /// - the custom `RUST_MODULE_PATH` to the module path of `record`.
 fn standard_fields<'a>(record: &'a Record) -> Vec<(&'static str, Cow<'a, str>)> {
@@ -115,7 +134,51 @@ fn standard_fields<'a>(record: &'a Record) -> Vec<(&'static str, Cow<'a, str>)> 
     fields
 }
 
-impl Log for JournalLog {
+impl<K, V> JournalLog<K, V>
+where
+    K: AsRef<str> + Sync + Send,
+    V: AsRef<str> + Sync + Send,
+{
+    /// Create a logger which adds extra fields to every log entry.
+    ///
+    /// # Journal fields
+    ///
+    /// `extra_fields` is a sequence of key value pairs to add as extra fields
+    /// to every log entry logged through the new logger.  The extra fields will
+    /// be *appended* to the standard journal fields written by the logger.
+    ///
+    /// ## Restrictions on field names
+    ///
+    /// Each key in the sequence must be a valid journal field name, i.e.
+    /// contain only uppercase alphanumeric characters and the underscore, and
+    /// it must not start with an underscore.
+    ///
+    /// `extra_fields` should **not** contain any of the journal fields already
+    /// added by this logger; while journald supports multiple values for a field
+    /// journald clients may not handle unexpected multi-value fields properly and
+    /// likely show only the first value.  Specifically even `journalctl` will only
+    /// shouw the first `MESSAGE` value of journal entries.
+    ///
+    /// See the [`crate`] documentation at [`crate`] for details about the standard
+    /// journal fields this logger uses.
+    ///
+    /// Invalid fields are **silently discarded** currently; this may change in a later
+    /// version.
+    ///
+    /// ## Restrictions on values
+    ///
+    /// There are no restrictions on the value.
+    pub fn with_extra_fields(extra_fields: Vec<(K, V)>) -> Self {
+        Self { extra_fields }
+    }
+}
+
+/// The [`Log`] interface for [`JournalLog`].
+impl<K, V> Log for JournalLog<K, V>
+where
+    K: AsRef<str> + Sync + Send,
+    V: AsRef<str> + Sync + Send,
+{
     /// Whether this logger is enabled.
     ///
     /// Always returns `true`.
@@ -125,10 +188,15 @@ impl Log for JournalLog {
 
     /// Send the given `record` to the systemd journal.
     fn log(&self, record: &Record) {
+        let fields = standard_fields(record);
         journal_send(
             level_to_priority(record.level()),
             &format!("{}", record.args()),
-            standard_fields(record).into_iter(),
+            fields.into_iter().chain(
+                self.extra_fields
+                    .iter()
+                    .map(|(k, v)| (k.as_ref(), Cow::Borrowed(v.as_ref()))),
+            ),
         )
         // TODO: Figure out how to handle journal write failures
         .ok();
@@ -141,7 +209,9 @@ impl Log for JournalLog {
 }
 
 /// The static instance of systemd journal logger.
-pub static LOG: JournalLog = JournalLog;
+pub static LOG: JournalLog<&'static str, &'static str> = JournalLog {
+    extra_fields: vec![],
+};
 
 /// Initialize journal logging.
 ///
@@ -161,6 +231,23 @@ pub static LOG: JournalLog = JournalLog;
 /// This function returns an error if any logger was previously registered.
 pub fn init() -> Result<(), SetLoggerError> {
     log::set_logger(&LOG)
+}
+
+/// Initialize journal logging with extra journal fields.
+///
+/// Create a new [`JournalLog`] with the given fields and set it as logger
+/// with [`log::set_boxed_logger`].
+///
+/// This function can only be called once during the lifetime of a program.
+///
+/// See [`init`] for more information about log levels and error behaviour,
+/// and [`JournalLog::with_extra_fields`] for details about `extra_fields`.
+pub fn init_with_extra_fields<K, V>(extra_fields: Vec<(K, V)>) -> Result<(), SetLoggerError>
+where
+    K: AsRef<str> + Sync + Send + 'static,
+    V: AsRef<str> + Sync + Send + 'static,
+{
+    log::set_boxed_logger(Box::new(JournalLog::with_extra_fields(extra_fields)))
 }
 
 #[cfg(test)]
