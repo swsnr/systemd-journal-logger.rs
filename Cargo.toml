@@ -14,7 +14,9 @@ keywords = ["logging", "systemd", "journal"]
 edition = "2018"
 
 [dependencies]
-log = "^0.4"
+# libsystemd isn't no_std compatible so we can conveniently enable log's std
+# feature unconditionally
+log = { version = "^0.4", features = ["std"] }
 libsystemd = "^0.3"
 
 [dev-dependencies]
