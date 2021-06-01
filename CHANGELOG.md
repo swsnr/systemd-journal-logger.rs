@@ -15,7 +15,7 @@ Run [`cargo-release`][cr] to publish a release.
 
 ### Fixed
 
-- Multiline messages are no longer lost (see [GH-2]), following an update of [libsystemd] (see [libsystemd GH-70] and [libsystemd GH-70]).
+- Multiline messages are no longer lost (see [GH-2]), following an update of [libsystemd] (see [libsystemd GH-70] and [libsystemd GH-72]).
 
 [GH-2]: https://github.com/lunaryorn/systemd-journal-logger.rs/pull/2
 [libsystemd]: https://github.com/lucab/libsystemd-rs
