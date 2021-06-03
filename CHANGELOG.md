@@ -31,7 +31,7 @@ Run [`cargo-release`][cr] to publish a release.
 [libsystemd GH-70]: https://github.com/lucab/libsystemd-rs/issues/70
 [libsystemd GH-72]: https://github.com/lucab/libsystemd-rs/pull/72
 
-## [0.1.0] – 2021-05-28
+## [0.1.0] – 2021-05-28 (yanked)
 
 Initial release with `systemd_journal_logger::LOG` and `systemd_journal_logger::init`.
 
