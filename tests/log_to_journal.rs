@@ -11,50 +11,16 @@
 
 #![deny(warnings, clippy::all)]
 
-use std::collections::HashMap;
-use std::process::Command;
-
 use log::{Level, Log, Record};
-use rand::distributions::Alphanumeric;
-use rand::Rng;
+use pretty_assertions::assert_eq;
 
 use systemd_journal_logger::{JournalLog, LOG};
 
-fn random_target(prefix: &str) -> String {
-    format!(
-        "{}-{}",
-        prefix,
-        rand::thread_rng()
-            .sample_iter(&Alphanumeric)
-            .take(10)
-            .map(char::from)
-            .collect::<String>()
-    )
-}
-
-fn read_from_journal(target: &str) -> Vec<HashMap<String, String>> {
-    let stdout = String::from_utf8(
-        Command::new("journalctl")
-            .args(&["--user", "--output=json"])
-            // Filter by the PID of the current test process and the module path
-            .arg(format!("_PID={}", std::process::id()))
-            .arg(format!("MODULE_PATH={}", module_path!()))
-            .arg(format!("TARGET={}", target))
-            .output()
-            .unwrap()
-            .stdout,
-    )
-    .unwrap();
-
-    stdout
-        .lines()
-        .map(|l| serde_json::from_str(l).unwrap())
-        .collect()
-}
+mod journal;
 
 #[test]
 fn simple_log_entry() {
-    let target = random_target("systemd_journal_logger/simple_log_entry");
+    let target = journal::random_target("systemd_journal_logger/simple_log_entry");
 
     LOG.log(
         &Record::builder()
@@ -67,7 +33,7 @@ fn simple_log_entry() {
             .build(),
     );
 
-    let entries = read_from_journal(&target);
+    let entries = journal::read(module_path!(), &target);
     assert_eq!(entries.len(), 1);
     let entry = &entries[0];
 
@@ -99,7 +65,7 @@ fn simple_log_entry() {
 
 #[test]
 fn multiline_message() {
-    let target = random_target("systemd_journal_logger/multiline_message");
+    let target = journal::random_target("systemd_journal_logger/multiline_message");
 
     LOG.log(
         &Record::builder()
@@ -113,7 +79,7 @@ fn multiline_message() {
             .build(),
     );
 
-    let entries = read_from_journal(&target);
+    let entries = journal::read(module_path!(), &target);
     assert_eq!(entries.len(), 1);
     let entry = &entries[0];
 
@@ -130,7 +96,7 @@ fn multiline_message() {
 
 #[test]
 fn extra_fields() {
-    let target = random_target("systemd_journal_logger/log_extra_field");
+    let target = journal::random_target("systemd_journal_logger/log_extra_field");
 
     JournalLog::with_extra_fields(vec![("FOO", "BAR")]).log(
         &Record::builder()
@@ -141,7 +107,7 @@ fn extra_fields() {
             .build(),
     );
 
-    let entries = read_from_journal(&target);
+    let entries = journal::read(module_path!(), &target);
     assert_eq!(entries.len(), 1);
     let entry = &entries[0];
 
