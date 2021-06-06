@@ -45,7 +45,7 @@ fn simple_log_entry() {
     assert_eq!(entry["MESSAGE"], "systemd_journal_logger test: 42");
     assert_eq!(entry["CODE_FILE"], file!());
     assert_eq!(entry["CODE_LINE"], "92749");
-    assert_eq!(entry["MODULE_PATH"], module_path!());
+    assert_eq!(entry["CODE_MODULE"], module_path!());
 
     assert!(entry["SYSLOG_IDENTIFIER"].contains("log_to_journal"));
     assert_eq!(

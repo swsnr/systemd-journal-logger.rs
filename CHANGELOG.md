@@ -18,6 +18,7 @@ Run [`cargo-release`][cr] to publish a release.
 
 ### Changed
 - Do not silently ignore journal errors; instead panic if the logger fails to send a message to the systemd journal.
+- Use `CODE_MODULE` field for the Rust module path, for compatibility with the `slog-journal` and `systemd` crates.
 
 [GH-3]: https://github.com/lunaryorn/systemd-journal-logger.rs/pull/3
 [GH-5]: https://github.com/lunaryorn/systemd-journal-logger.rs/pull/5

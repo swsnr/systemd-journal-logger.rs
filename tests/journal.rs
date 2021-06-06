@@ -76,7 +76,7 @@ pub fn read_current_process(module: &str, target: &str) -> Vec<HashMap<String, S
         Journal::User,
         vec![
             format!("_PID={}", std::process::id()),
-            format!("MODULE_PATH={}", module),
+            format!("CODE_MODULE={}", module),
             format!("TARGET={}", target),
         ],
     )

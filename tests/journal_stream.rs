@@ -83,7 +83,7 @@ fn main() {
             let entries = journal::read(
                 journal,
                 vec![
-                    format!("MODULE_PATH={}", module_path!()),
+                    format!("CODE_MODULE={}", module_path!()),
                     format!("TARGET={}", &target),
                 ],
             );

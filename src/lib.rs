@@ -54,7 +54,7 @@
 //! Additionally it also adds the following non-standard fields:
 //!
 //! - `TARGET`: The target of the log record (see [`log::Record::target()`]).
-//! - `RUST_MODULE_PATH`: The module path of the log record (see [`log::Record::module_path()`], only if present).
+//! - `CODE_MODULE`: The module path of the log record (see [`log::Record::module_path()`], only if present).
 //!
 //! You can add custom fields to every log entry with [`JournalLog::with_extra_fields`] and [`init_with_extra_fields`]:
 //!
@@ -131,7 +131,7 @@ fn level_to_priority(level: Level) -> Priority {
 ///   and the PID of the current process.
 /// - the standard `CODE_FILE` and `CODE_LINE` fields to the file and line of `record`,
 /// - the custom `TARGET` field to `record.target`, and
-/// - the custom `RUST_MODULE_PATH` to the module path of `record`.
+/// - the custom `CODE_MODULE` to the module path of `record`.
 fn standard_fields<'a>(record: &'a Record) -> Vec<(&'static str, Cow<'a, str>)> {
     let mut fields = Vec::with_capacity(6);
 
@@ -154,7 +154,7 @@ fn standard_fields<'a>(record: &'a Record) -> Vec<(&'static str, Cow<'a, str>)> 
     // Non-standard fields
     fields.push(("TARGET", record.target().into()));
     if let Some(module) = record.module_path() {
-        fields.push(("MODULE_PATH", module.into()))
+        fields.push(("CODE_MODULE", module.into()))
     }
     fields
 }
@@ -387,7 +387,7 @@ mod tests {
                 ("CODE_LINE", Cow::Borrowed("10")),
                 ("TARGET", Cow::Borrowed("testlog")),
                 (
-                    "MODULE_PATH",
+                    "CODE_MODULE",
                     Cow::Borrowed("systemd_journal_logger::tests")
                 )
             ]
