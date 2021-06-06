@@ -19,7 +19,7 @@ jobs:
           command: fmt
           args: -- --check
 
-  test:
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
@@ -39,10 +39,30 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           args: --all-targets
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: 'stable'
+          override: true
       - name: cargo test
         uses: actions-rs/cargo@v1
         with:
           command: test
+
+  doc:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: 'stable'
+          override: true
       - name: cargo doc
         uses: actions-rs/cargo@v1
         with:
