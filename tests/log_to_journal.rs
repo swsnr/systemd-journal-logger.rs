@@ -177,6 +177,6 @@ fn extra_record_fields() {
     );
     assert_eq!(entry["MESSAGE"], "Hello world");
     assert_eq!(entry["EXTRA_FIELD"], "foo");
-    assert_eq!(entry["UNDERSCORE_FOO"], "foo");
+    assert_eq!(entry["ESCAPED__FOO"], "foo");
     assert_eq!(entry["SPAM_WITH_EGGS"], "false");
 }

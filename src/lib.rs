@@ -107,6 +107,7 @@ use libsystemd::errors::SdError;
 use libsystemd::logging::Priority;
 use log::kv::{Error, Key, Value, Visitor};
 use log::{Level, Log, Metadata, Record, SetLoggerError};
+use std::cmp::min;
 
 /// A systemd journal logger.
 pub struct JournalLog<K, V> {
@@ -165,7 +166,7 @@ fn standard_fields<'a>(record: &'a Record) -> Vec<(Cow<'a, str>, Cow<'a, str>)> 
 ///
 /// Journal field keys may only contain ASCII uppercase letters A to Z,
 /// numbers 0 to 9 and the underscore.
-pub fn is_valid_key_char(c: char) -> bool {
+fn is_valid_key_char(c: char) -> bool {
     matches!(c, 'A'..='Z' | '0'..='9' | '_')
 }
 
@@ -174,24 +175,31 @@ pub fn is_valid_key_char(c: char) -> bool {
 /// Journal keys must only contain ASCII uppercase letters, numbers and
 /// the underscore, and the must not start with an underscore.
 ///
-/// If all characters in `key` are valid (see [`is_valid_key_char`])
-/// return `key`, otherwise transform `key` to a ASCII uppercase, and
-/// replace all invalid characters with an underscore.
+/// If all characters in `key` are valid return `key`, otherwise transform
+/// `key` to a ASCII uppercase, and replace all invalid characters with
+/// an underscore.
 ///
-/// If the resulting value starts with an underscore prepend the
-/// prefix "UNDERSCORE" to the result.
+/// If the result string starts with an underscore or a digit
+/// prepend the string `ESCAPED_` to the result.
+///
+/// If `key` is the empty string return `"EMPTY"` instead.
+///
+/// In all cases cap the resulting value at 64 bytes; journald doesn't
+/// permit longer fields.
 pub fn escape_journal_key(key: &str) -> Cow<str> {
-    if key.chars().all(is_valid_key_char) {
-        Cow::Borrowed(key)
+    if key.is_empty() {
+        Cow::Borrowed("EMPTY")
+    } else if key.chars().all(is_valid_key_char) {
+        Cow::Borrowed(&key[..min(key.len(), 64)])
     } else {
-        let escaped = key
+        let mut escaped = key
             .to_ascii_uppercase()
             .replace(|c| !is_valid_key_char(c), "_");
-        if escaped.starts_with('_') {
-            format!("UNDERSCORE{}", escaped).into()
-        } else {
-            escaped.into()
+        if escaped.starts_with(|c: char| matches!(c, '_' | '0'..='9')) {
+            escaped = format!("ESCAPED_{}", escaped);
         }
+        escaped.truncate(64);
+        escaped.into()
     }
 }
 
@@ -442,9 +450,9 @@ mod tests {
 
         let cases = vec![
             ("foo", "FOO"),
-            ("_foo", "UNDERSCORE_FOO"),
+            ("_foo", "ESCAPED__FOO"),
+            ("1foo", "ESCAPED_1FOO"),
             ("Hallöchen", "HALL_CHEN"),
-            ("öß", "UNDERSCORE__"),
         ];
         for (key, expected) in cases {
             assert_eq!(super::escape_journal_key(key), expected);
