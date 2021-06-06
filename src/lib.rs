@@ -8,7 +8,7 @@
 
 #![deny(warnings, missing_docs, clippy::all)]
 
-//! A [log] logger for the [systemd journal][1].
+//! A pure Rust [log] logger for the [systemd journal][1].
 //!
 //! [log]: https://docs.rs/log
 //! [1]: https://www.freedesktop.org/software/systemd/man/journalctl.html
