@@ -11,6 +11,8 @@ Run [`cargo-release`][cr] to publish a release.
 
 ## [Unreleased]
 
+## [0.3.0] – 2021-06-07
+
 ### Added
 - Add `JournalLog::with_extra_fields` and `init_with_extra_fields` to add custom fields to every log entry (see [GH-3]).
 - Add new `journal_send` to send an individual log record directly to the systemd journal.
@@ -42,6 +44,7 @@ Initial release with `systemd_journal_logger::LOG` and `systemd_journal_logger::
 
 Do **not use** this version; it looses multiline messages and has been yanked from crates.io.
 
-[Unreleased]: https://github.com/lunaryorn/systemd-journal-logger.rs/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/lunaryorn/systemd-journal-logger.rs/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/lunaryorn/systemd-journal-logger.rs/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/lunaryorn/systemd-journal-logger.rs/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/lunaryorn/systemd-journal-logger.rs/releases/tag/v0.1.0
