@@ -11,6 +11,11 @@ Run [`cargo-release`][cr] to publish a release.
 
 ## [Unreleased]
 
+### Fixed
+- Compile on arm7 targets (see [GH-7]).
+
+[GH-7]: https://github.com/lunaryorn/systemd-journal-logger.rs/pull/7
+
 ## [0.3.0] – 2021-06-07
 
 ### Added
