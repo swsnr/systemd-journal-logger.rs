@@ -11,6 +11,8 @@ Run [`cargo-release`][cr] to publish a release.
 
 ## [Unreleased]
 
+## [0.3.1] – 2021-10-06
+
 ### Fixed
 - Compile on arm7 targets (see [GH-7]).
 
@@ -49,7 +51,8 @@ Initial release with `systemd_journal_logger::LOG` and `systemd_journal_logger::
 
 Do **not use** this version; it looses multiline messages and has been yanked from crates.io.
 
-[Unreleased]: https://github.com/lunaryorn/systemd-journal-logger.rs/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/lunaryorn/systemd-journal-logger.rs/compare/v0.3.1...HEAD
+[0.3.1]: https://github.com/lunaryorn/systemd-journal-logger.rs/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/lunaryorn/systemd-journal-logger.rs/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/lunaryorn/systemd-journal-logger.rs/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/lunaryorn/systemd-journal-logger.rs/releases/tag/v0.1.0
