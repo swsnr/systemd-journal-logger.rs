@@ -11,6 +11,8 @@ Run [`cargo-release`][cr] to publish a release.
 
 ## [Unreleased]
 
+## [0.4.0] – 2021-10-28
+
 ### Changed
 - Update to `libsystemd` 0.4.0, and reexport `connected_to_journal()` from that crate.
 
@@ -57,7 +59,8 @@ Initial release with `systemd_journal_logger::LOG` and `systemd_journal_logger::
 
 Do **not use** this version; it looses multiline messages and has been yanked from crates.io.
 
-[Unreleased]: https://github.com/lunaryorn/systemd-journal-logger.rs/compare/v0.3.1...HEAD
+[Unreleased]: https://github.com/lunaryorn/systemd-journal-logger.rs/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/lunaryorn/systemd-journal-logger.rs/compare/v0.3.1...v0.4.0
 [0.3.1]: https://github.com/lunaryorn/systemd-journal-logger.rs/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/lunaryorn/systemd-journal-logger.rs/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/lunaryorn/systemd-journal-logger.rs/compare/v0.1.0...v0.2.0
