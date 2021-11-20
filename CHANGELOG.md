@@ -11,6 +11,9 @@ Run [`cargo-release`][cr] to publish a release.
 
 ## [Unreleased]
 
+### Changed
+- Bump libsystemd to `0.4.1` to support socket reuse and fix memfd leak.
+
 ## [0.4.0] – 2021-10-28
 
 ### Changed
