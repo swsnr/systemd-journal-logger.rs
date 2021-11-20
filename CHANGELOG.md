@@ -11,6 +11,8 @@ Run [`cargo-release`][cr] to publish a release.
 
 ## [Unreleased]
 
+## [0.4.1] – 2021-11-20
+
 ### Changed
 - Bump libsystemd to `0.4.1` to support socket reuse and fix memfd leak.
 
@@ -62,7 +64,8 @@ Initial release with `systemd_journal_logger::LOG` and `systemd_journal_logger::
 
 Do **not use** this version; it looses multiline messages and has been yanked from crates.io.
 
-[Unreleased]: https://github.com/lunaryorn/systemd-journal-logger.rs/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/lunaryorn/systemd-journal-logger.rs/compare/v0.4.1...HEAD
+[0.4.1]: https://github.com/lunaryorn/systemd-journal-logger.rs/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/lunaryorn/systemd-journal-logger.rs/compare/v0.3.1...v0.4.0
 [0.3.1]: https://github.com/lunaryorn/systemd-journal-logger.rs/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/lunaryorn/systemd-journal-logger.rs/compare/v0.2.0...v0.3.0
