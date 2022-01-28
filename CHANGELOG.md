@@ -13,6 +13,7 @@ Run [`cargo-release`][cr] to publish a release.
 
 ### Changed
 - Move repository, issues, etc. to <https://codeberg.org/flausch/systemd-journal-logger.rs>.
+- Update to libsystemd 0.5.0.
 
 ## [0.4.1] – 2021-11-20
 
