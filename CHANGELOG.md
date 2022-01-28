@@ -11,6 +11,8 @@ Run [`cargo-release`][cr] to publish a release.
 
 ## [Unreleased]
 
+## [0.5.0] – 2022-01-28
+
 ### Changed
 - Move repository, issues, etc. to <https://codeberg.org/flausch/systemd-journal-logger.rs>.
 - Update to libsystemd 0.5.0.
@@ -68,7 +70,8 @@ Initial release with `systemd_journal_logger::LOG` and `systemd_journal_logger::
 
 Do **not use** this version; it looses multiline messages and has been yanked from crates.io.
 
-[Unreleased]: https://codeberg.org/flausch/systemd-journal-logger.rs/compare/v0.4.1...HEAD
+[Unreleased]: https://codeberg.org/flausch/systemd-journal-logger.rs/compare/v0.5.0...HEAD
+[0.5.0]: https://codeberg.org/flausch/systemd-journal-logger.rs/compare/v0.4.1...v0.5.0
 [0.4.1]: https://codeberg.org/flausch/systemd-journal-logger.rs/compare/v0.4.0...v0.4.1
 [0.4.0]: https://codeberg.org/flausch/systemd-journal-logger.rs/compare/v0.3.1...v0.4.0
 [0.3.1]: https://codeberg.org/flausch/systemd-journal-logger.rs/compare/v0.3.0...v0.3.1
