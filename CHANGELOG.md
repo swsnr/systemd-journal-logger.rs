@@ -7,9 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Run [`cargo-release`][cr] to publish a release.
 
-[cr]: https://github.com/sunng87/cargo-release/
+[cr]: https://github.com/crate-ci/cargo-release/
 
 ## [Unreleased]
+
+### Changed
+- Move repository, issues, etc. to <https://codeberg.org/flausch/systemd-journal-logger.rs>.
 
 ## [0.4.1] – 2021-11-20
 
@@ -29,7 +32,7 @@ Run [`cargo-release`][cr] to publish a release.
 ### Fixed
 - Compile on arm7 targets (see [GH-7]).
 
-[GH-7]: https://github.com/lunaryorn/systemd-journal-logger.rs/pull/7
+[GH-7]: https://codeberg.org/flauschsystemd-journal-logger.rs/pull/7
 
 ## [0.3.0] – 2021-06-07
 
@@ -43,9 +46,9 @@ Run [`cargo-release`][cr] to publish a release.
 - Do not silently ignore journal errors; instead panic if the logger fails to send a message to the systemd journal.
 - Use `CODE_MODULE` field for the Rust module path, for compatibility with the `slog-journal` and `systemd` crates.
 
-[GH-1]: https://github.com/lunaryorn/systemd-journal-logger.rs/pull/1
-[GH-3]: https://github.com/lunaryorn/systemd-journal-logger.rs/pull/3
-[GH-5]: https://github.com/lunaryorn/systemd-journal-logger.rs/pull/5
+[GH-1]: https://codeberg.org/flausch/systemd-journal-logger.rs/pulls/1
+[GH-3]: https://codeberg.org/flausch/systemd-journal-logger.rs/pulls/3
+[GH-5]: https://codeberg.org/flausch/systemd-journal-logger.rs/pulls/5
 
 ## [0.2.0] – 2021-06-01
 
@@ -53,7 +56,7 @@ Run [`cargo-release`][cr] to publish a release.
 
 - Multiline messages are no longer lost (see [GH-2]), following an update of [libsystemd] (see [libsystemd GH-70] and [libsystemd GH-72]).
 
-[GH-2]: https://github.com/lunaryorn/systemd-journal-logger.rs/pull/2
+[GH-2]: https://codeberg.org/flausch/systemd-journal-logger.rs/pulls/2
 [libsystemd]: https://github.com/lucab/libsystemd-rs
 [libsystemd GH-70]: https://github.com/lucab/libsystemd-rs/issues/70
 [libsystemd GH-72]: https://github.com/lucab/libsystemd-rs/pull/72
@@ -64,10 +67,10 @@ Initial release with `systemd_journal_logger::LOG` and `systemd_journal_logger::
 
 Do **not use** this version; it looses multiline messages and has been yanked from crates.io.
 
-[Unreleased]: https://github.com/lunaryorn/systemd-journal-logger.rs/compare/v0.4.1...HEAD
-[0.4.1]: https://github.com/lunaryorn/systemd-journal-logger.rs/compare/v0.4.0...v0.4.1
-[0.4.0]: https://github.com/lunaryorn/systemd-journal-logger.rs/compare/v0.3.1...v0.4.0
-[0.3.1]: https://github.com/lunaryorn/systemd-journal-logger.rs/compare/v0.3.0...v0.3.1
-[0.3.0]: https://github.com/lunaryorn/systemd-journal-logger.rs/compare/v0.2.0...v0.3.0
-[0.2.0]: https://github.com/lunaryorn/systemd-journal-logger.rs/compare/v0.1.0...v0.2.0
-[0.1.0]: https://github.com/lunaryorn/systemd-journal-logger.rs/releases/tag/v0.1.0
+[Unreleased]: https://codeberg.org/flausch/systemd-journal-logger.rs/compare/v0.4.1...HEAD
+[0.4.1]: https://codeberg.org/flausch/systemd-journal-logger.rs/compare/v0.4.0...v0.4.1
+[0.4.0]: https://codeberg.org/flausch/systemd-journal-logger.rs/compare/v0.3.1...v0.4.0
+[0.3.1]: https://codeberg.org/flausch/systemd-journal-logger.rs/compare/v0.3.0...v0.3.1
+[0.3.0]: https://codeberg.org/flausch/systemd-journal-logger.rs/compare/v0.2.0...v0.3.0
+[0.2.0]: https://codeberg.org/flausch/systemd-journal-logger.rs/compare/v0.1.0...v0.2.0
+[0.1.0]: https://codeberg.org/flausch/systemd-journal-logger.rs/releases/tag/v0.1.0
