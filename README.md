@@ -50,6 +50,7 @@ See [systemd_service.rs](./examples/systemd_service.rs) for a simple example of 
 
 - [rust-systemd](https://github.com/jmesmon/rust-systemd) provides a [logger implementation][1] based on the `libsystemd` C library.
 - [slog-journald](https://github.com/slog-rs/journald) provides an [slog] logger for the systemd journal, also based on the `libsystemd` C library.
+- [tracing-journald](https://github.com/tokio-rs/tracing/tree/master/tracing-journald) provides a tracing backend for the systemd journal, in a pure Rust implementation.
 
 Both loggers use mostly the same fields and priorities as this implementation.
 
