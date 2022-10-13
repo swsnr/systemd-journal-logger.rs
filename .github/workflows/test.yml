@@ -5,11 +5,16 @@ on: [push, pull_request]
 jobs:
   test:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # Test against MRSV and stable
+        rust: ['1.56.0', 'stable']
     steps:
       - uses: actions/checkout@v3
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: dtolnay/rust-toolchain@master
         with:
           components: clippy,rustfmt
+          toolchain: ${{ matrix.rust }}
       - run: cargo build --all-targets
       - run: cargo clippy --all-targets
       - run: cargo test

@@ -13,6 +13,9 @@ Run [`cargo-release`][cr] to publish a release.
 
 ### Changed
 - Move repository, issues, etc. back to <https://github.com/lunaryorn/systemd-journal-logger.rs>.
+- Bump MRSV to 1.56.0 (see [GH-10]).
+
+[GH-10]: https://github.com/lunaryorn/systemd-journal-logger.rs/pull/10
 
 ## [0.5.0] – 2022-01-28
 
