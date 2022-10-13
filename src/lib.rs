@@ -436,13 +436,13 @@ mod tests {
 
         assert_eq!(fields[0].0, "SYSLOG_IDENTIFIER");
         assert!(
-            (&fields[0].1).contains("systemd_journal_logger"),
+            fields[0].1.contains("systemd_journal_logger"),
             "SYSLOG_IDENTIFIER={}",
             fields[0].1
         );
 
         assert_eq!(fields[1].0, "SYSLOG_PID");
-        assert_eq!((&fields[1].1).as_ref(), std::process::id().to_string());
+        assert_eq!(fields[1].1.as_ref(), std::process::id().to_string());
 
         assert_eq!(
             fields[2..],
