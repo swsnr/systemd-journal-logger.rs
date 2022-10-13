@@ -24,7 +24,6 @@
 //! to inspect it.
 
 use log::{info, set_max_level, LevelFilter};
-use simple_logger::SimpleLogger;
 use systemd_journal_logger::{connected_to_journal, init_with_extra_fields};
 
 fn main() {
@@ -35,7 +34,7 @@ fn main() {
         init_with_extra_fields(vec![("VERSION", env!("CARGO_PKG_VERSION"))]).unwrap();
     } else {
         // Otherwise fall back to logging to standard error.
-        SimpleLogger::new().init().unwrap();
+        env_logger::init();
     }
 
     set_max_level(LevelFilter::Info);
