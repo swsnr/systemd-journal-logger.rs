@@ -9,7 +9,7 @@ documentation = "https://docs.rs/systemd-journal-logger"
 description = "Systemd journal logger for the log facade."
 categories = ["development-tools::debugging"]
 keywords = ["logging", "systemd", "journal"]
-edition = "2018"
+edition = "2021"
 rust-version = "1.56"
 
 [dependencies]
