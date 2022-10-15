@@ -11,6 +11,8 @@ Run [`cargo-release`][cr] to publish a release.
 
 ## [Unreleased]
 
+## [0.5.1] – 2022-10-15
+
 ### Changed
 - Move repository, issues, etc. back to <https://github.com/lunaryorn/systemd-journal-logger.rs>.
 
@@ -73,7 +75,8 @@ Initial release with `systemd_journal_logger::LOG` and `systemd_journal_logger::
 
 Do **not use** this version; it looses multiline messages and has been yanked from crates.io.
 
-[Unreleased]: https://github.com/lunaryorn/systemd-journal-logger.rs/compare/v0.5.0...HEAD
+[Unreleased]: https://github.com/lunaryorn/systemd-journal-logger.rs/compare/v0.5.1...HEAD
+[0.5.1]: https://github.com/lunaryorn/systemd-journal-logger.rs/compare/v0.5.0...v0.5.1
 [0.5.0]: https://github.com/lunaryorn/systemd-journal-logger.rs/compare/v0.4.1...v0.5.0
 [0.4.1]: https://github.com/lunaryorn/systemd-journal-logger.rs/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/lunaryorn/systemd-journal-logger.rs/compare/v0.3.1...v0.4.0
