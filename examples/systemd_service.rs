@@ -23,8 +23,25 @@
 //! Now it logs to the systemd journal; you can use journalctl --user -e --output=verbose
 //! to inspect it.
 
-use log::{info, set_max_level, LevelFilter};
+use log::{info, LevelFilter, Log};
+use std::io::prelude::*;
 use systemd_journal_logger::{connected_to_journal, init_with_extra_fields};
+
+struct SimpleLogger;
+
+impl Log for SimpleLogger {
+    fn enabled(&self, _metadata: &log::Metadata) -> bool {
+        true
+    }
+
+    fn log(&self, record: &log::Record) {
+        let _ = writeln!(std::io::stderr(), "{}", record.args());
+    }
+
+    fn flush(&self) {
+        let _ = std::io::stderr().flush();
+    }
+}
 
 fn main() {
     if connected_to_journal() {
@@ -34,10 +51,10 @@ fn main() {
         init_with_extra_fields(vec![("VERSION", env!("CARGO_PKG_VERSION"))]).unwrap();
     } else {
         // Otherwise fall back to logging to standard error.
-        env_logger::init();
+        log::set_logger(&SimpleLogger).unwrap();
     }
 
-    set_max_level(LevelFilter::Info);
+    log::set_max_level(LevelFilter::Info);
 
     info!("Hello\nworld!");
 }
