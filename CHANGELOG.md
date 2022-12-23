@@ -11,6 +11,9 @@ Run [`cargo-release`][cr] to publish a release.
 
 ## [Unreleased]
 
+### Changed
+- Bump `libsystemd` dependency to `0.6.0`
+
 ## [0.6.0] – 2022-12-02
 
 ### Changed
