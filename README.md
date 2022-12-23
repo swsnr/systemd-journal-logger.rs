@@ -12,7 +12,7 @@ This logger used [libsystemd](https://github.com/lucab/libsystemd-rs) and has no
 ```toml
 [dependencies]
 log = "^0.4"
-systemd-journal-logger = "0.6.0"
+systemd-journal-logger = "0.7.0"
 ```
 
 Then initialize the logger at the start of `main`:
