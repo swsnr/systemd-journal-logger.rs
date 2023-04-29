@@ -9,6 +9,7 @@
 mod journal;
 
 use pretty_assertions::assert_eq;
+use systemd_journal_logger::JournalLog;
 
 #[derive(Debug)]
 struct SomeDummy {
@@ -18,7 +19,7 @@ struct SomeDummy {
 
 #[test]
 fn log_with_extra_fields() {
-    systemd_journal_logger::init().unwrap();
+    JournalLog::default().install().unwrap();
     log::set_max_level(log::LevelFilter::Info);
 
     let target = journal::random_target("init");

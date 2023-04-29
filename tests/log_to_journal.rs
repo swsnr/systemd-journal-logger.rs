@@ -15,7 +15,7 @@ use log::kv::Value;
 use log::{Level, Log, Record};
 use pretty_assertions::assert_eq;
 
-use systemd_journal_logger::{JournalLog, LOG};
+use systemd_journal_logger::JournalLog;
 
 mod journal;
 
@@ -23,7 +23,7 @@ mod journal;
 fn simple_log_entry() {
     let target = journal::random_target("systemd_journal_logger/simple_log_entry");
 
-    LOG.log(
+    JournalLog::default().log(
         &Record::builder()
             .level(Level::Warn)
             .target(&target)
@@ -68,7 +68,7 @@ fn simple_log_entry() {
 fn multiline_message() {
     let target = journal::random_target("systemd_journal_logger/multiline_message");
 
-    LOG.log(
+    JournalLog::default().log(
         &Record::builder()
             .level(Level::Error)
             .target(&target)
@@ -99,14 +99,16 @@ fn multiline_message() {
 fn extra_fields() {
     let target = journal::random_target("systemd_journal_logger/extra_fields");
 
-    JournalLog::with_extra_fields(vec![("FOO", "BAR")]).log(
-        &Record::builder()
-            .level(Level::Debug)
-            .target(&target)
-            .module_path(Some(module_path!()))
-            .args(format_args!("with an extra field"))
-            .build(),
-    );
+    JournalLog::default()
+        .with_extra_fields(vec![("FOO", "BAR")])
+        .log(
+            &Record::builder()
+                .level(Level::Debug)
+                .target(&target)
+                .module_path(Some(module_path!()))
+                .args(format_args!("with an extra field"))
+                .build(),
+        );
 
     let entries = journal::read_current_process(module_path!(), &target);
     assert_eq!(entries.len(), 1);
@@ -125,14 +127,16 @@ fn extra_fields() {
 fn escaped_extra_fields() {
     let target = journal::random_target("systemd_journal_logger/escaped_extra_fields");
 
-    JournalLog::with_extra_fields(vec![("Hallöchen", "Welt")]).log(
-        &Record::builder()
-            .level(Level::Debug)
-            .target(&target)
-            .module_path(Some(module_path!()))
-            .args(format_args!("with an escaped extra field"))
-            .build(),
-    );
+    JournalLog::default()
+        .with_extra_fields(vec![("Hallöchen", "Welt")])
+        .log(
+            &Record::builder()
+                .level(Level::Debug)
+                .target(&target)
+                .module_path(Some(module_path!()))
+                .args(format_args!("with an escaped extra field"))
+                .build(),
+        );
 
     let entries = journal::read_current_process(module_path!(), &target);
     assert_eq!(entries.len(), 1);
@@ -156,15 +160,17 @@ fn extra_record_fields() {
         ("spam_with_eggs", Value::from(false)),
     ];
 
-    JournalLog::with_extra_fields(vec![("EXTRA_FIELD", "foo")]).log(
-        &Record::builder()
-            .level(Level::Error)
-            .target(&target)
-            .module_path(Some(module_path!()))
-            .args(format_args!("Hello world"))
-            .key_values(&kvs)
-            .build(),
-    );
+    JournalLog::default()
+        .with_extra_fields(vec![("EXTRA_FIELD", "foo")])
+        .log(
+            &Record::builder()
+                .level(Level::Error)
+                .target(&target)
+                .module_path(Some(module_path!()))
+                .args(format_args!("Hello world"))
+                .key_values(&kvs)
+                .build(),
+        );
 
     let entries = journal::read_current_process(module_path!(), &target);
     assert_eq!(entries.len(), 1);

@@ -11,6 +11,20 @@ Run [`cargo-release`][cr] to publish a release.
 
 ## [Unreleased]
 
+### Added
+- Add `JournalLog::default`, and new setters for extra fields and the syslog identifier (see [GH-17]).
+- Add `with_syslog_identifier` to override the syslog identifier (see [GH-16] and [GH-17]).
+
+### Changed
+- Cache the syslog identifier instead of computing it for every log message (see [GH-16] and [GH-17]).
+
+### Removed
+- Static `LOG` instance.  Always create your own `JournalLog` instance now (see [GH-17]).
+- `init` and `init_with_extra_fields`.  Create your own `JournalLog` instance now, and call `install` (see [GH-17]).
+
+[GH-16]: https://github.com/swsnr/systemd-journal-logger.rs/issues/16
+[GH-17]: https://github.com/swsnr/systemd-journal-logger.rs/pull/17
+
 ## [0.7.0] – 2022-12-23
 
 ### Changed

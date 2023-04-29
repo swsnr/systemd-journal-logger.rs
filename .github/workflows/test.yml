@@ -28,9 +28,14 @@ jobs:
           toolchain: ${{ matrix.rust }}
       - run: cargo build --all-targets
       - run: cargo clippy --all-targets
+        # Run clippy only on stable target; we don't need lints from old Rust
+        # versions.
+        if: "${{ matrix.rust == 'stable' }}"
       - run: cargo test
       - run: cargo doc
       - run: cargo fmt -- --check
+        # Run fmt check only on stable rust, as our reference.
+        if: "${{ matrix.rust == 'stable' }}"
 
   cargo-deny:
     runs-on: ubuntu-latest
