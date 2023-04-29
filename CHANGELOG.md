@@ -11,6 +11,8 @@ Run [`cargo-release`][cr] to publish a release.
 
 ## [Unreleased]
 
+## [1.0.0] – 2023-04-29
+
 ### Added
 - Add `JournalLog::default`, and new setters for extra fields and the syslog identifier (see [GH-17]).
 - Add `with_syslog_identifier` to override the syslog identifier (see [GH-16] and [GH-17]).
@@ -102,7 +104,8 @@ Initial release with `systemd_journal_logger::LOG` and `systemd_journal_logger::
 
 Do **not use** this version; it looses multiline messages and has been yanked from crates.io.
 
-[Unreleased]: https://github.com/swsnr/systemd-journal-logger.rs/compare/v0.7.0...HEAD
+[Unreleased]: https://github.com/swsnr/systemd-journal-logger.rs/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/swsnr/systemd-journal-logger.rs/compare/v0.7.0...v1.0.0
 [0.7.0]: https://github.com/swsnr/systemd-journal-logger.rs/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/swsnr/systemd-journal-logger.rs/compare/v0.5.1...v0.6.0
 [0.5.1]: https://github.com/swsnr/systemd-journal-logger.rs/compare/v0.5.0...v0.5.1
