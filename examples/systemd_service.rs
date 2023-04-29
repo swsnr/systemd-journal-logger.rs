@@ -25,7 +25,7 @@
 
 use log::{info, LevelFilter, Log};
 use std::io::prelude::*;
-use systemd_journal_logger::{connected_to_journal, init_with_extra_fields};
+use systemd_journal_logger::{connected_to_journal, JournalLog};
 
 struct SimpleLogger;
 
@@ -48,7 +48,10 @@ fn main() {
         // If the output streams of this process are directly connected to the
         // systemd journal log directly to the journal to preserve structured
         // log entries (e.g. proper multiline messages, metadata fields, etc.)
-        init_with_extra_fields(vec![("VERSION", env!("CARGO_PKG_VERSION"))]).unwrap();
+        JournalLog::default()
+            .with_extra_fields(vec![("VERSION", env!("CARGO_PKG_VERSION"))])
+            .install()
+            .unwrap();
     } else {
         // Otherwise fall back to logging to standard error.
         log::set_logger(&SimpleLogger).unwrap();

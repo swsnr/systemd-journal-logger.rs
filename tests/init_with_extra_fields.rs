@@ -11,10 +11,14 @@ use log::info;
 mod journal;
 
 use pretty_assertions::assert_eq;
+use systemd_journal_logger::JournalLog;
 
 #[test]
 fn init_with_extra_fields() {
-    systemd_journal_logger::init_with_extra_fields(vec![("SPAM", "WITH EGGS")]).unwrap();
+    JournalLog::default()
+        .with_extra_fields(vec![("SPAM", "WITH EGGS")])
+        .install()
+        .unwrap();
     log::set_max_level(log::LevelFilter::Info);
 
     let target = journal::random_target("init");

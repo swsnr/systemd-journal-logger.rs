@@ -6,8 +6,6 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
-#![deny(warnings, missing_docs, clippy::all)]
-
 //! A pure Rust [log] logger for the [systemd journal][1].
 //!
 //! [log]: https://docs.rs/log
@@ -15,15 +13,16 @@
 //!
 //! # Usage
 //!
-//! Use [`init`] at the beginning of your `main` function to setup journal
-//! logging, configure the logging level and then use the standard macros
+//! Create a [`JournalLog`] with [`JournalLog::default`] and then use [`JournalLog::install`] to
+//! setup journal logging.  Then configure the logging level and now you can use the standard macros
 //! from the [`log`] crate to send log messages to the systemd journal:
 //!
 //! ```edition2018
 //! use log::{info, warn, error, LevelFilter};
+//! use systemd_journal_logger::JournalLog;
 //!
 //! # fn main(){
-//! systemd_journal_logger::init().unwrap();
+//! JournalLog::default().install().unwrap();
 //! log::set_max_level(LevelFilter::Info);
 //!
 //! info!("hello log");
@@ -46,10 +45,11 @@
 //!
 //! - `PRIORITY`: The log level mapped to a priority (see below).
 //! - `MESSAGE`: The formatted log message (see [`log::Record::args()`]).
-//! - `SYSLOG_IDENTIFIER`: The short name of the running process, i.e. the file name of [`std::env::current_exe()`] if successful.
 //! - `SYSLOG_PID`: The PID of the running process (see [`std::process::id()`]).
 //! - `CODE_FILE`: The filename the log message originates from (see [`log::Record::file()`], only if present).
 //! - `CODE_LINE`: The line number the log message originates from (see [`log::Record::line()`], only if present).
+//!
+//! It also sets `SYSLOG_IDENTIFIER` if non-empty (see [`JournalLog::with_syslog_identifier`] and [`JournalLog::default`]).
 //!
 //! Additionally it also adds the following non-standard fields:
 //!
@@ -60,13 +60,18 @@
 //! from each log record as journal fields, after converting the keys to uppercase letters and replacing invalid
 //! characters with underscores.
 //!
-//! You can also add custom fields to every log entry with [`JournalLog::with_extra_fields`] and [`init_with_extra_fields`]:
+//! You can also add custom fields to every log entry with [`JournalLog::with_extra_fields`] and customize the
+//! syslog identifier with [`JournalLog::with_syslog_identifier`]:
 //!
 //! ```edition2018
 //! use log::{info, warn, error, LevelFilter};
+//! use systemd_journal_logger::JournalLog;
 //!
 //! # fn main(){
-//! systemd_journal_logger::init_with_extra_fields(vec![("VERSION", env!("CARGO_PKG_VERSION"))]).unwrap();
+//! JournalLog::default()
+//!     .with_extra_fields(vec![("VERSION", env!("CARGO_PKG_VERSION"))])
+//!     .with_syslog_identifier("foo".to_string())
+//!     .install().unwrap();
 //! log::set_max_level(LevelFilter::Info);
 //!
 //! info!("this message has an extra VERSION field in the journal");
@@ -97,6 +102,7 @@
 //!
 //! To implement an alternative error handling behaviour define a custom log implementation around
 //! [`journal_send`] which sends a single log record to the journal.
+#![deny(warnings, missing_docs, clippy::all)]
 
 use std::borrow::Cow;
 
@@ -105,14 +111,9 @@ use libsystemd::logging::Priority;
 use log::kv::{Error, Key, Value, Visitor};
 use log::{Level, Log, Metadata, Record, SetLoggerError};
 use std::cmp::min;
+use std::io::ErrorKind;
 
 pub use libsystemd::logging::connected_to_journal;
-
-/// A systemd journal logger.
-pub struct JournalLog<K, V> {
-    /// Extra fields to add to every logged message.
-    extra_fields: Vec<(K, V)>,
-}
 
 /// Convert a a log level to a journal priority.
 fn level_to_priority(level: Level) -> Priority {
@@ -123,42 +124,6 @@ fn level_to_priority(level: Level) -> Priority {
         Level::Debug => Priority::Info,
         Level::Trace => Priority::Debug,
     }
-}
-
-/// Collect the standard journal fields from `record`.
-///
-/// Sets
-///
-/// - the standard `SYSLOG_IDENTIFIER` and `SYSLOG_PID` fields to the short name (if it exists)
-///   and the PID of the current process.
-/// - the standard `CODE_FILE` and `CODE_LINE` fields to the file and line of `record`,
-/// - the custom `TARGET` field to `record.target`, and
-/// - the custom `CODE_MODULE` to the module path of `record`.
-fn standard_fields<'a>(record: &'a Record) -> Vec<(Cow<'a, str>, Cow<'a, str>)> {
-    let mut fields = Vec::with_capacity(6);
-
-    if let Some(short_name) = std::env::current_exe()
-        .ok()
-        .as_ref()
-        .and_then(|p| p.file_name())
-        .map(|n| n.to_string_lossy().into_owned())
-    {
-        fields.push(("SYSLOG_IDENTIFIER".into(), short_name.into()));
-    }
-    fields.push(("SYSLOG_PID".into(), std::process::id().to_string().into()));
-
-    if let Some(file) = record.file() {
-        fields.push(("CODE_FILE".into(), file.into()));
-    }
-    if let Some(line) = record.line().map(|l| l.to_string()) {
-        fields.push(("CODE_LINE".into(), line.into()));
-    }
-    // Non-standard fields
-    fields.push(("TARGET".into(), record.target().into()));
-    if let Some(module) = record.module_path() {
-        fields.push(("CODE_MODULE".into(), module.into()))
-    }
-    fields
 }
 
 /// Whether `c` is a valid character in the key of a journal field.
@@ -202,40 +167,56 @@ pub fn escape_journal_key(key: &str) -> Cow<str> {
     }
 }
 
-struct CollectKeyValues<'a, 'kvs>(&'a mut Vec<(Key<'kvs>, Value<'kvs>)>);
-
-impl<'a, 'kvs> Visitor<'kvs> for CollectKeyValues<'a, 'kvs> {
-    fn visit_pair(&mut self, key: Key<'kvs>, value: Value<'kvs>) -> Result<(), Error> {
-        self.0.push((key, value));
-        Ok(())
-    }
+/// Create a syslog identifier from the current executable.
+pub fn current_exe_identifier() -> std::io::Result<String> {
+    let executable = std::env::current_exe()?;
+    let filename = executable.file_name().ok_or(std::io::Error::new(
+        ErrorKind::InvalidData,
+        format!(
+            "Current executable {} has no filename",
+            executable.display()
+        ),
+    ))?;
+    Ok(filename.to_string_lossy().into_owned())
 }
 
 /// Send a single log record to the journal.
 ///
-/// Extract the standard fields from `record` (see [`crate`] documentation),
-/// and append all `extra_fields`; the send the resulting fields to the
-/// systemd journal with [`libsystemd::logging::journal_send`] and return
-/// the result of that function.
-pub fn journal_send<'a, K, V>(
+/// Extract the standard fields from `record` (see [`crate`] documentation), inject the standard
+/// `SYSLOG_PID` field, and add a `SYSLOG_IDENTIFIER` field for the given `syslog_identifier`, if
+/// not empty.
+///
+/// Then append all `extra_fields` and send the all these fields to the systemd journal with
+/// [`libsystemd::logging::journal_send`].
+///
+/// Return the result of [`libsystemd::logging::journal_send`].
+pub fn journal_send<'a, K, V, I>(
+    syslog_identifier: &str,
     record: &Record,
-    extra_fields: impl Iterator<Item = &'a (K, V)>,
+    extra_fields: I,
 ) -> Result<(), SdError>
 where
+    I: Iterator<Item = &'a (K, V)>,
     K: AsRef<str> + 'a,
     V: AsRef<str> + 'a,
 {
     let mut record_fields = Vec::with_capacity(record.key_values().count());
-    // Our visitor nevers fails so we can safely unwrap here
+    // Our visitor never fails so we can safely unwrap here
     record
         .key_values()
         .visit(&mut CollectKeyValues(&mut record_fields))
         .unwrap();
+    let mut global_fields: Vec<(Cow<str>, Cow<str>)> =
+        vec![("SYSLOG_PID".into(), std::process::id().to_string().into())];
+    if !syslog_identifier.is_empty() {
+        global_fields.push(("SYSLOG_IDENTIFIER".into(), syslog_identifier.into()));
+    }
     libsystemd::logging::journal_send(
         level_to_priority(record.level()),
         &format!("{}", record.args()),
-        standard_fields(record)
+        global_fields
             .into_iter()
+            .chain(standard_record_fields(record).into_iter())
             .chain(extra_fields.map(|(k, v)| (escape_journal_key(k.as_ref()), v.as_ref().into())))
             .chain(
                 record_fields
@@ -245,12 +226,48 @@ where
     )
 }
 
-impl<K, V> JournalLog<K, V>
-where
-    K: AsRef<str> + Sync + Send,
-    V: AsRef<str> + Sync + Send,
-{
-    /// Create a logger which adds extra fields to every log entry.
+struct CollectKeyValues<'a, 'kvs>(&'a mut Vec<(Key<'kvs>, Value<'kvs>)>);
+
+impl<'a, 'kvs> Visitor<'kvs> for CollectKeyValues<'a, 'kvs> {
+    fn visit_pair(&mut self, key: Key<'kvs>, value: Value<'kvs>) -> Result<(), Error> {
+        self.0.push((key, value));
+        Ok(())
+    }
+}
+
+/// Collect the standard journal fields for `record`.
+///
+/// Sets
+///
+/// - the standard `CODE_FILE` and `CODE_LINE` fields to the file and line of `record`,
+/// - the custom `TARGET` field to `record.target`, and
+/// - the custom `CODE_MODULE` to the module path of `record`.
+fn standard_record_fields<'a>(record: &'a Record) -> Vec<(Cow<'a, str>, Cow<'a, str>)> {
+    let mut fields: Vec<(Cow<'a, str>, Cow<'a, str>)> = Vec::with_capacity(4);
+    if let Some(file) = record.file() {
+        fields.push(("CODE_FILE".into(), file.into()));
+    }
+    if let Some(line) = record.line().map(|l| l.to_string()) {
+        fields.push(("CODE_LINE".into(), line.into()));
+    }
+    // Non-standard fields
+    fields.push(("TARGET".into(), record.target().into()));
+    if let Some(module) = record.module_path() {
+        fields.push(("CODE_MODULE".into(), module.into()))
+    }
+    fields
+}
+
+/// A systemd journal logger.
+pub struct JournalLog<K: AsRef<str>, V: AsRef<str>> {
+    /// Extra fields to add to every logged message.
+    extra_fields: Vec<(K, V)>,
+    /// The syslog identifier.
+    syslog_identifier: String,
+}
+
+impl<K: AsRef<str>, V: AsRef<str>> JournalLog<K, V> {
+    /// Set extra fields to be added to every log entry.
     ///
     /// # Journal fields
     ///
@@ -280,8 +297,69 @@ where
     /// ## Restrictions on values
     ///
     /// There are no restrictions on the value.
-    pub fn with_extra_fields(extra_fields: Vec<(K, V)>) -> Self {
-        Self { extra_fields }
+    pub fn with_extra_fields<KK: AsRef<str>, VV: AsRef<str>>(
+        self,
+        extra_fields: Vec<(KK, VV)>,
+    ) -> JournalLog<KK, VV> {
+        JournalLog {
+            extra_fields,
+            syslog_identifier: self.syslog_identifier,
+        }
+    }
+
+    /// Set the given syslog identifier for this logger.
+    ///
+    /// The logger writes this string in the `SYSLOG_IDENTIFIER` field, which can be filtered for
+    /// with `journalctl -t`.
+    ///
+    /// Use [`current_exe_identifier()`] to obtain the standard identifier for the current executable.
+    pub fn with_syslog_identifier(mut self, identifier: String) -> Self {
+        self.syslog_identifier = identifier;
+        self
+    }
+
+    /// Send a single log record to the journal.
+    ///
+    /// Extract the standard fields from `record` (see [`crate`] documentation),
+    /// and append all `extra_fields`; the send the resulting fields to the
+    /// systemd journal with [`libsystemd::logging::journal_send`] and return
+    /// the result of that function.
+    pub fn journal_send(&self, record: &Record) -> Result<(), SdError> {
+        journal_send(&self.syslog_identifier, record, self.extra_fields.iter())
+    }
+}
+
+impl<K, V> JournalLog<K, V>
+where
+    K: AsRef<str> + Send + Sync + 'static,
+    V: AsRef<str> + Send + Sync + 'static,
+{
+    /// Install this logger globally.
+    ///
+    /// See [`log::set_boxed_logger`].
+    pub fn install(self) -> Result<(), SetLoggerError> {
+        log::set_boxed_logger(Box::new(self))
+    }
+}
+
+impl JournalLog<String, String> {
+    /// Create an empty journal log instance, with no extra fields and no syslog identifier.
+    pub fn empty() -> Self {
+        Self {
+            extra_fields: Vec::new(),
+            syslog_identifier: String::new(),
+        }
+    }
+}
+
+impl Default for JournalLog<String, String> {
+    /// Create a journal logger with no extra fields and a syslog identifier obtained with
+    /// [`current_exe_identifier()`].
+    ///
+    /// If `current_exe_identifier()` fails use no syslog identifier.
+    fn default() -> Self {
+        let log = Self::empty();
+        log.with_syslog_identifier(current_exe_identifier().unwrap_or_default())
     }
 }
 
@@ -304,56 +382,17 @@ where
     ///
     /// **Panic** if sending the `record` to journald fails,
     /// i.e. if journald is not running.
+    ///
+    /// See [`JournalLog::journal_send`] for a function which returns any error which might have
+    /// occurred while sending the `record` to the journal.
     fn log(&self, record: &Record) {
-        journal_send(record, self.extra_fields.iter()).unwrap();
+        self.journal_send(record).unwrap();
     }
 
     /// Flush log records.
     ///
     /// A no-op for journal logging.
     fn flush(&self) {}
-}
-
-/// The static instance of systemd journal logger.
-pub static LOG: JournalLog<&'static str, &'static str> = JournalLog {
-    extra_fields: vec![],
-};
-
-/// Initialize journal logging.
-///
-/// Set [`LOG`] as logger with [`log::set_logger`].
-///
-/// This function can only be called once during the lifetime of a program.
-///
-/// # Default level
-///
-/// This function does not configure any default level for
-/// [`log`]; you need to configure the maximum level explicitly with
-/// [`log::set_max_level`], as [`log`] normally defaults to
-/// [`log::LevelFilter::Off`] which disables all logging.
-///
-/// # Errors
-///
-/// This function returns an error if any logger was previously registered.
-pub fn init() -> Result<(), SetLoggerError> {
-    log::set_logger(&LOG)
-}
-
-/// Initialize journal logging with extra journal fields.
-///
-/// Create a new [`JournalLog`] with the given fields and set it as logger
-/// with [`log::set_boxed_logger`].
-///
-/// This function can only be called once during the lifetime of a program.
-///
-/// See [`init`] for more information about log levels and error behaviour,
-/// and [`JournalLog::with_extra_fields`] for details about `extra_fields`.
-pub fn init_with_extra_fields<K, V>(extra_fields: Vec<(K, V)>) -> Result<(), SetLoggerError>
-where
-    K: AsRef<str> + Sync + Send + 'static,
-    V: AsRef<str> + Sync + Send + 'static,
-{
-    log::set_boxed_logger(Box::new(JournalLog::with_extra_fields(extra_fields)))
 }
 
 #[cfg(test)]
@@ -424,7 +463,7 @@ mod tests {
     }
 
     #[test]
-    fn standard_fields() {
+    fn standard_record_fields() {
         let record = Record::builder()
             .level(Level::Warn)
             .line(Some(10))
@@ -432,20 +471,10 @@ mod tests {
             .target("testlog")
             .module_path(Some(module_path!()))
             .build();
-        let fields = super::standard_fields(&record);
-
-        assert_eq!(fields[0].0, "SYSLOG_IDENTIFIER");
-        assert!(
-            fields[0].1.contains("systemd_journal_logger"),
-            "SYSLOG_IDENTIFIER={}",
-            fields[0].1
-        );
-
-        assert_eq!(fields[1].0, "SYSLOG_PID");
-        assert_eq!(fields[1].1.as_ref(), std::process::id().to_string());
+        let fields = super::standard_record_fields(&record);
 
         assert_eq!(
-            fields[2..],
+            fields,
             vec![
                 (Cow::Borrowed("CODE_FILE"), Cow::Borrowed("foo.rs")),
                 (Cow::Borrowed("CODE_LINE"), Cow::Borrowed("10")),
