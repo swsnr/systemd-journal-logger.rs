@@ -31,6 +31,9 @@ name = "journal_stream"
 harness = false
 
 [package.metadata.release]
+allow-branch = ["main"]
+sign-tag = true
+sign-commit = true
 pre-release-commit-message = "Release {{version}}"
 tag-prefix = ""
 tag-message = "Version {{tag_name}}"
@@ -39,3 +42,5 @@ pre-release-replacements = [
     { file = "CHANGELOG.md", search = "HEAD", replace = "{{tag_name}}", exactly = 1 },
     { file = "CHANGELOG.md", search = "\\[Unreleased\\]: ", replace = "[Unreleased]: https://github.com/swsnr/systemd-journal-logger.rs/compare/{{tag_name}}...HEAD\n[{{version}}]: ", exactly = 1 },
 ]
+# Github actions checks this for us.
+verify = false
