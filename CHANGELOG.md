@@ -22,6 +22,7 @@ Run [`cargo-release`][cr] to publish a release.
 - `JournalLog` no longer has type parameters; extra fields are now pre-formatted upon construction.
 - `JournalLog` no longer panics when sending a log record to journald fails; instead it silently discards the error.
 - `current_exe_identifier` now returns `Option` instead of `Result`.
+- Bump MSRV to `1.71.0`.
 
 ### Removed
 - `JournalLog::default`, since instantiation is now fallible.

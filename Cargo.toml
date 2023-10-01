@@ -10,7 +10,7 @@ description = "Systemd journal logger for the log facade."
 categories = ["development-tools::debugging"]
 keywords = ["logging", "systemd", "journal"]
 edition = "2021"
-rust-version = "1.56"
+rust-version = "1.71"
 
 [dependencies]
 # libsystemd isn't no_std compatible so we can conveniently enable log's std
