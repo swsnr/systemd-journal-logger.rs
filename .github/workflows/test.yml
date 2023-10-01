@@ -21,7 +21,7 @@ jobs:
         # Test against MRSV and stable
         rust: ['1.56.0', 'stable']
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@master
         with:
           components: clippy,rustfmt
@@ -40,5 +40,5 @@ jobs:
   cargo-deny:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: EmbarkStudios/cargo-deny-action@v1
