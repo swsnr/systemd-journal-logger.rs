@@ -15,26 +15,8 @@ use std::collections::HashMap;
 use std::fmt::Display;
 use std::process::Command;
 
-use rand::distributions::Alphanumeric;
-use rand::Rng;
 use serde::Deserialize;
 use std::ffi::OsStr;
-
-/// Generate a random TARGET name with the given `prefix`.
-///
-/// This allows to identify journal entries uniquely using the
-/// `target` log property and the TARGET journal field.
-pub fn random_target(prefix: &str) -> String {
-    format!(
-        "{}-{}",
-        prefix,
-        rand::thread_rng()
-            .sample_iter(&Alphanumeric)
-            .take(10)
-            .map(char::from)
-            .collect::<String>()
-    )
-}
 
 #[derive(Debug, Copy, Clone)]
 pub enum Journal {
@@ -118,14 +100,20 @@ where
 }
 
 // Read from the journal of the current process.
-pub fn read_current_process(module: &str, target: &str) -> Vec<HashMap<String, FieldValue>> {
+pub fn read_current_process(target: &str) -> Vec<HashMap<String, FieldValue>> {
     // Filter by the PID of the current test process and the module path
     read(
         Journal::User,
         vec![
             format!("_PID={}", std::process::id()),
-            format!("CODE_MODULE={}", module),
             format!("TARGET={}", target),
         ],
     )
+}
+
+pub fn read_one_entry(target: &str) -> HashMap<String, FieldValue> {
+    use pretty_assertions::assert_eq;
+    let mut entries = read_current_process(target);
+    assert_eq!(entries.len(), 1);
+    entries.pop().unwrap()
 }

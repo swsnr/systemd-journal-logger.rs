@@ -21,12 +21,10 @@ mod journal;
 
 #[test]
 fn simple_log_entry() {
-    let target = journal::random_target("systemd_journal_logger/simple_log_entry");
-
     JournalLog::new().unwrap().log(
         &Record::builder()
             .level(Level::Warn)
-            .target(&target)
+            .target("simple_log_entry")
             .module_path(Some(module_path!()))
             .file(Some(file!()))
             .line(Some(92749))
@@ -34,11 +32,9 @@ fn simple_log_entry() {
             .build(),
     );
 
-    let entries = journal::read_current_process(module_path!(), &target);
-    assert_eq!(entries.len(), 1);
-    let entry = &entries[0];
+    let entry = journal::read_one_entry("simple_log_entry");
 
-    assert_eq!(entry["TARGET"], target);
+    assert_eq!(entry["TARGET"], "simple_log_entry");
     assert_eq!(entry["PRIORITY"], "4");
     assert_eq!(entry["MESSAGE"], "systemd_journal_logger test: 42");
     assert_eq!(entry["CODE_FILE"], file!());
@@ -65,22 +61,15 @@ fn simple_log_entry() {
 
 #[test]
 fn internal_null_byte_in_message() {
-    let target = journal::random_target("systemd_journal_logger/internal_null_byte_in_message");
-
     JournalLog::new().unwrap().log(
         &Record::builder()
             .level(Level::Warn)
-            .target(&target)
-            .module_path(Some(module_path!()))
+            .target("internal_null_byte_in_message")
             .args(format_args!("systemd_journal_logger with \x00 byte"))
             .build(),
     );
 
-    let entries = journal::read_current_process(module_path!(), &target);
-    assert_eq!(entries.len(), 1);
-    let entry = &entries[0];
-
-    assert_eq!(entry["TARGET"], target);
+    let entry = journal::read_one_entry("internal_null_byte_in_message");
     assert_eq!(entry["PRIORITY"], "4");
     assert_eq!(
         entry["MESSAGE"].as_text(),
@@ -90,13 +79,10 @@ fn internal_null_byte_in_message() {
 
 #[test]
 fn multiline_message() {
-    let target = journal::random_target("systemd_journal_logger/multiline_message");
-
     JournalLog::new().unwrap().log(
         &Record::builder()
             .level(Level::Error)
-            .target(&target)
-            .module_path(Some(module_path!()))
+            .target("multiline_message")
             .args(format_args!(
                 "systemd_journal_logger test\nwith\nline {}",
                 "breaks"
@@ -104,11 +90,7 @@ fn multiline_message() {
             .build(),
     );
 
-    let entries = journal::read_current_process(module_path!(), &target);
-    assert_eq!(entries.len(), 1);
-    let entry = &entries[0];
-
-    assert_eq!(entry["TARGET"], target);
+    let entry = journal::read_one_entry("multiline_message");
     assert_eq!(entry["PRIORITY"], "3");
     assert_eq!(
         entry["MESSAGE"],
@@ -118,70 +100,49 @@ fn multiline_message() {
 
 #[test]
 fn trailing_newline_message() {
-    let target = journal::random_target("systemd_journal_logger/trailing_newline_message");
-
     JournalLog::new().unwrap().log(
         &Record::builder()
             .level(Level::Trace)
-            .target(&target)
-            .module_path(Some(module_path!()))
+            .target("trailing_newline_message")
             .args(format_args!("trailing newline\n"))
             .build(),
     );
 
-    let entries = journal::read_current_process(module_path!(), &target);
-    assert_eq!(entries.len(), 1);
-    let entry = &entries[0];
-
-    assert_eq!(entry["TARGET"], target);
+    let entry = journal::read_one_entry("trailing_newline_message");
     assert_eq!(entry["PRIORITY"], "7");
     assert_eq!(entry["MESSAGE"], "trailing newline\n");
 }
 
 #[test]
 fn very_large_message() {
-    let target = journal::random_target("systemd_journal_logger/very_large_message");
-
     let very_large_string = "b".repeat(512_000);
     JournalLog::new().unwrap().log(
         &Record::builder()
             .level(Level::Trace)
-            .target(&target)
-            .module_path(Some(module_path!()))
+            .target("very_large_message")
             .args(format_args!("{}", very_large_string))
             .build(),
     );
 
-    let entries = journal::read_current_process(module_path!(), &target);
-    assert_eq!(entries.len(), 1);
-    let entry = &entries[0];
-
-    assert_eq!(entry["TARGET"], target);
+    let entry = journal::read_one_entry("very_large_message");
     assert_eq!(entry["PRIORITY"], "7");
     assert_eq!(entry["MESSAGE"].as_text(), very_large_string);
 }
 
 #[test]
 fn extra_fields() {
-    let target = journal::random_target("systemd_journal_logger/extra_fields");
-
     JournalLog::new()
         .unwrap()
         .with_extra_fields(vec![("FOO", "BAR")])
         .log(
             &Record::builder()
                 .level(Level::Debug)
-                .target(&target)
-                .module_path(Some(module_path!()))
+                .target("extra_fields")
                 .args(format_args!("with an extra field"))
                 .build(),
         );
 
-    let entries = journal::read_current_process(module_path!(), &target);
-    assert_eq!(entries.len(), 1);
-    let entry = &entries[0];
-
-    assert_eq!(entry["TARGET"], target);
+    let entry = journal::read_one_entry("extra_fields");
     assert_eq!(entry["PRIORITY"], "6");
     assert_eq!(entry["MESSAGE"], "with an extra field");
     assert_eq!(entry["FOO"], "BAR")
@@ -189,8 +150,6 @@ fn extra_fields() {
 
 #[test]
 fn escaped_extra_fields() {
-    let target = journal::random_target("systemd_journal_logger/escaped_extra_fields");
-
     JournalLog::new()
         .unwrap()
         .with_extra_fields(vec![
@@ -201,17 +160,13 @@ fn escaped_extra_fields() {
         .log(
             &Record::builder()
                 .level(Level::Debug)
-                .target(&target)
-                .module_path(Some(module_path!()))
+                .target("escaped_extra_fields")
                 .args(format_args!("with an escaped extra field"))
                 .build(),
         );
 
-    let entries = journal::read_current_process(module_path!(), &target);
-    assert_eq!(entries.len(), 1);
-    let entry = &entries[0];
+    let entry = journal::read_one_entry("escaped_extra_fields");
 
-    assert_eq!(entry["TARGET"], target);
     assert_eq!(entry["PRIORITY"], "6");
     assert_eq!(entry["MESSAGE"], "with an escaped extra field");
     assert_eq!(entry["HALL_CHEN"], "Welt");
@@ -221,8 +176,6 @@ fn escaped_extra_fields() {
 
 #[test]
 fn extra_record_fields() {
-    let target = journal::random_target("systemd_journal_logger/extra_record_fields");
-
     let kvs: &[(&str, Value)] = &[
         ("_foo", Value::from("foo")),
         ("spam_with_eggs", Value::from(false)),
@@ -234,18 +187,14 @@ fn extra_record_fields() {
         .log(
             &Record::builder()
                 .level(Level::Error)
-                .target(&target)
-                .module_path(Some(module_path!()))
+                .target("extra_record_fields")
                 .args(format_args!("Hello world"))
                 .key_values(&kvs)
                 .build(),
         );
 
-    let entries = journal::read_current_process(module_path!(), &target);
-    assert_eq!(entries.len(), 1);
-    let entry = &entries[0];
+    let entry = journal::read_one_entry("extra_record_fields");
 
-    assert_eq!(entry["TARGET"], target);
     assert_eq!(entry["PRIORITY"], "3");
     assert_eq!(entry["MESSAGE"], "Hello world");
     assert_eq!(entry["EXTRA_FIELD"], "foo");
