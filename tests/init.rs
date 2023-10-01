@@ -6,6 +6,8 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
+#![deny(warnings, clippy::all)]
+
 use log::info;
 
 mod journal;
@@ -15,16 +17,12 @@ use systemd_journal_logger::JournalLog;
 
 #[test]
 fn init() {
-    JournalLog::default().install().unwrap();
+    JournalLog::new().unwrap().install().unwrap();
     log::set_max_level(log::LevelFilter::Info);
 
-    let target = journal::random_target("init");
+    info!(target: "init", "Hello World");
 
-    info!(target: &target, "Hello World");
-
-    let entries = journal::read_current_process(module_path!(), &target);
-    assert_eq!(entries.len(), 1);
-
-    assert_eq!(entries[0]["TARGET"], target);
-    assert_eq!(entries[0]["MESSAGE"], "Hello World");
+    let entry = journal::read_one_entry("init");
+    assert_eq!(entry["TARGET"], "init");
+    assert_eq!(entry["MESSAGE"], "Hello World");
 }

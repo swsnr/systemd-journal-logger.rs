@@ -6,6 +6,8 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
+#![deny(warnings, clippy::all)]
+
 use log::info;
 
 mod journal;
@@ -15,20 +17,17 @@ use systemd_journal_logger::JournalLog;
 
 #[test]
 fn init_with_extra_fields() {
-    JournalLog::default()
+    JournalLog::new()
+        .unwrap()
         .with_extra_fields(vec![("SPAM", "WITH EGGS")])
         .install()
         .unwrap();
     log::set_max_level(log::LevelFilter::Info);
 
-    let target = journal::random_target("init");
+    info!(target: "init_with_extra_fields", "Hello World");
 
-    info!(target: &target, "Hello World");
-
-    let entries = journal::read_current_process(module_path!(), &target);
-    assert_eq!(entries.len(), 1);
-
-    assert_eq!(entries[0]["TARGET"], target);
-    assert_eq!(entries[0]["MESSAGE"], "Hello World");
-    assert_eq!(entries[0]["SPAM"], "WITH EGGS");
+    let entry = journal::read_one_entry("init_with_extra_fields");
+    assert_eq!(entry["TARGET"], "init_with_extra_fields");
+    assert_eq!(entry["MESSAGE"], "Hello World");
+    assert_eq!(entry["SPAM"], "WITH EGGS");
 }

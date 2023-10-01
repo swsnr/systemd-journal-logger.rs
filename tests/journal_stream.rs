@@ -38,7 +38,7 @@ fn main() {
         Ok(target) => {
             use systemd_journal_logger::*;
 
-            JournalLog::default().install().unwrap();
+            JournalLog::new().unwrap().install().unwrap();
             log::set_max_level(LevelFilter::Debug);
 
             info!(
@@ -51,9 +51,10 @@ fn main() {
             panic!("Value of ${} not unicode: {:?}", env_name, value);
         }
         Err(VarError::NotPresent) => {
+            // Attach our PID to the target to make the target unique.
+            let target = format!("journal_stream_{}", std::process::id());
             // Restart this binary under systemd-run and then check the journal for the test result
             let exe = std::env::current_exe().unwrap();
-            let target = journal::random_target("journal_stream");
             let status = if use_system_instance {
                 let mut cmd = Command::new("sudo");
                 cmd.arg("systemd-run");
@@ -64,7 +65,7 @@ fn main() {
                 cmd
             }
             .arg("--description=systemd-journal-logger integration test: journal_stream")
-            .arg(format!("--setenv={}={}", env_name, target))
+            .arg(format!("--setenv={}={}", env_name, &target))
             // Wait until the process exited and unload the entire unit afterwards to
             // leave no state behind
             .arg("--wait")
@@ -89,7 +90,7 @@ fn main() {
             );
             assert_eq!(entries.len(), 1);
 
-            assert_eq!(entries[0]["TARGET"], target);
+            assert_eq!(entries[0]["TARGET"], &target);
             assert_eq!(entries[0]["MESSAGE"], "connected_to_journal() -> true");
         }
     }
