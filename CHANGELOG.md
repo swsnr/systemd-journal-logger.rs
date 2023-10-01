@@ -21,6 +21,7 @@ Run [`cargo-release`][cr] to publish a release.
 - `JournalLog` should use a lot less allocations on the hot path; in particular all fields are formatted into a single message buffer.
 - `JournalLog` no longer has type parameters; extra fields are now pre-formatted upon construction.
 - `JournalLog` no longer panics when sending a log record to journald fails; instead it silently discards the error.
+- `current_exe_identifier` now returns `Option` instead of `Result`.
 
 ### Removed
 - `JournalLog::default`, since instantiation is now fallible.

@@ -61,7 +61,6 @@
 #![deny(warnings, missing_docs, clippy::all)]
 
 use std::io::prelude::*;
-use std::io::ErrorKind;
 use std::os::fd::AsFd;
 use std::os::linux::fs::MetadataExt;
 
@@ -95,16 +94,12 @@ pub fn connected_to_journal() -> bool {
 }
 
 /// Create a syslog identifier from the current executable.
-pub fn current_exe_identifier() -> std::io::Result<String> {
-    let executable = std::env::current_exe()?;
-    let filename = executable.file_name().ok_or(std::io::Error::new(
-        ErrorKind::InvalidData,
-        format!(
-            "Current executable {} has no filename",
-            executable.display()
-        ),
-    ))?;
-    Ok(filename.to_string_lossy().into_owned())
+///
+/// Return `None` if we're unable to determine the name, e.g. because
+/// [`std::env::current_exe`] failed or returned some weird name.
+pub fn current_exe_identifier() -> Option<String> {
+    let executable = std::env::current_exe().ok()?;
+    Some(executable.file_name()?.to_string_lossy().into_owned())
 }
 
 struct WriteKeyValues<'a>(&'a mut Vec<u8>);
