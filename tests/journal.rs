@@ -28,6 +28,7 @@ pub enum Journal {
 #[serde(untagged)]
 pub enum FieldValue {
     Text(String),
+    Array(Vec<String>),
     Binary(Vec<u8>),
 }
 
@@ -36,6 +37,7 @@ impl FieldValue {
         match self {
             FieldValue::Text(v) => Cow::Borrowed(v.as_str()),
             FieldValue::Binary(binary) => String::from_utf8_lossy(binary),
+            FieldValue::Array(v) => Cow::Borrowed(v.get(0).map_or("", |s| s.as_str())),
         }
     }
 }
@@ -47,15 +49,27 @@ impl Display for FieldValue {
 }
 
 // Convenience impls to compare fields against strings and bytes with assert_eq!
-impl<T> PartialEq<T> for FieldValue
-where
-    T: AsRef<str>,
-{
-    fn eq(&self, other: &T) -> bool {
+impl PartialEq<&str> for FieldValue {
+    fn eq(&self, other: &&str) -> bool {
         match self {
-            FieldValue::Text(s) => s == other.as_ref(),
-            FieldValue::Binary(b) => b == other.as_ref().as_bytes(),
+            FieldValue::Text(s) => s == other,
+            FieldValue::Binary(b) => b == other.as_bytes(),
+            FieldValue::Array(_) => false,
         }
+    }
+}
+
+// Convenience impls to compare fields against strings and bytes with assert_eq!
+impl PartialEq<String> for FieldValue {
+    fn eq(&self, other: &String) -> bool {
+        self == &other.as_str()
+    }
+}
+
+// Convenience impls to compare fields against strings and bytes with assert_eq!
+impl PartialEq<&String> for FieldValue {
+    fn eq(&self, other: &&String) -> bool {
+        self == &other.as_str()
     }
 }
 
@@ -64,6 +78,17 @@ impl PartialEq<[u8]> for FieldValue {
         match self {
             FieldValue::Text(s) => s.as_bytes() == other,
             FieldValue::Binary(data) => data == other,
+            FieldValue::Array(_) => false,
+        }
+    }
+}
+
+impl PartialEq<Vec<&str>> for FieldValue {
+    fn eq(&self, other: &std::vec::Vec<&str>) -> bool {
+        match self {
+            FieldValue::Text(_) => false,
+            FieldValue::Binary(_) => false,
+            FieldValue::Array(a) => a == other,
         }
     }
 }

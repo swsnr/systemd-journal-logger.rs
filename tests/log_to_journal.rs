@@ -201,3 +201,28 @@ fn extra_record_fields() {
     assert_eq!(entry["ESCAPED__FOO"], "foo");
     assert_eq!(entry["SPAM_WITH_EGGS"], "false");
 }
+
+#[test]
+fn duplicate_fields() {
+    let kvs: &[(&str, Value)] = &[("FOO", Value::from("record foo"))];
+
+    JournalLog::new()
+        .unwrap()
+        .with_extra_fields(vec![("FOO", "logger foo")])
+        .log(
+            &Record::builder()
+                .level(Level::Error)
+                .target("duplicate_fields")
+                .args(format_args!("Hello world"))
+                .key_values(&kvs)
+                .build(),
+        );
+
+    let entry = journal::read_one_entry("duplicate_fields");
+
+    assert_eq!(entry["PRIORITY"], "3");
+    assert_eq!(entry["MESSAGE"], "Hello world");
+    // First the field value from the record, then the one from the logger itself,
+    // since we append extra fields of the logger at the very end.
+    assert_eq!(entry["FOO"], vec!["record foo", "logger foo"]);
+}
