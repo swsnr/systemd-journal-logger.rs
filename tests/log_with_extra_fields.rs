@@ -19,7 +19,7 @@ struct SomeDummy {
 
 #[test]
 fn log_with_extra_fields() {
-    JournalLog::default().install().unwrap();
+    JournalLog::new().unwrap().install().unwrap();
     log::set_max_level(log::LevelFilter::Info);
 
     let target = journal::random_target("init");

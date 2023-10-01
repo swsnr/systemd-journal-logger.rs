@@ -15,7 +15,8 @@ use systemd_journal_logger::JournalLog;
 
 #[test]
 fn init_with_extra_fields() {
-    JournalLog::default()
+    JournalLog::new()
+        .unwrap()
         .with_extra_fields(vec![("SPAM", "WITH EGGS")])
         .install()
         .unwrap();

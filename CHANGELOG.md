@@ -11,6 +11,21 @@ Run [`cargo-release`][cr] to publish a release.
 
 ## [Unreleased]
 
+### Added
+- `JournalLog::new` as default entry point.
+- Check whether journald listens when constructing a `JournalLog`.
+
+### Changed
+- Remove `libsystemd` dependency, and directly implement journal access.
+- `JournalLog::empty` now returns `std::io::Result<JournalLog>`.
+- `JournalLog` should use a lot less allocations on the hot path; in particular all fields are formatted into a single message buffer.
+- `JournalLog` no longer has type parameters; extra fields are now pre-formatted upon construction.
+- `JournalLog` no longer panics when sending a log record to journald fails; instead it silently discards the error.
+
+### Removed
+- `JournalLog::default`, since instantiation is now fallible.
+- `escape_journal_key`, because the logger handles this internally.
+
 ## [1.0.0] – 2023-04-29
 
 ### Added

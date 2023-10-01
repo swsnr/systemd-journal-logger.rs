@@ -15,7 +15,7 @@ use systemd_journal_logger::JournalLog;
 
 #[test]
 fn init() {
-    JournalLog::default().install().unwrap();
+    JournalLog::new().unwrap().install().unwrap();
     log::set_max_level(log::LevelFilter::Info);
 
     let target = journal::random_target("init");

@@ -38,7 +38,7 @@ fn main() {
         Ok(target) => {
             use systemd_journal_logger::*;
 
-            JournalLog::default().install().unwrap();
+            JournalLog::new().unwrap().install().unwrap();
             log::set_max_level(LevelFilter::Debug);
 
             info!(
