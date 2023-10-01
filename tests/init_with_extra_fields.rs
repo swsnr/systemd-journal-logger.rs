@@ -12,7 +12,7 @@ use log::info;
 
 mod journal;
 
-use pretty_assertions::assert_eq;
+use similar_asserts::assert_eq;
 use systemd_journal_logger::JournalLog;
 
 #[test]

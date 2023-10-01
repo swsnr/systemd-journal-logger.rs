@@ -109,7 +109,7 @@ pub fn put_field_bytes(buffer: &mut Vec<u8>, name: FieldName<'_>, value: &[u8]) 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use pretty_assertions::assert_eq;
+    use similar_asserts::assert_eq;
     use FieldName::*;
 
     #[test]

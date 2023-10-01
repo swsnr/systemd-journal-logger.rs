@@ -23,7 +23,7 @@ use std::env::VarError;
 use std::process::Command;
 
 use log::{info, LevelFilter};
-use pretty_assertions::assert_eq;
+use similar_asserts::assert_eq;
 
 mod journal;
 
