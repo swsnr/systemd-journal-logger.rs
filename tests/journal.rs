@@ -15,6 +15,7 @@ use std::collections::HashMap;
 use std::fmt::Display;
 use std::process::Command;
 
+use retry::delay::Fixed;
 use serde::Deserialize;
 use std::ffi::OsStr;
 
@@ -137,8 +138,13 @@ pub fn read_current_process(target: &str) -> Vec<HashMap<String, FieldValue>> {
 }
 
 pub fn read_one_entry(target: &str) -> HashMap<String, FieldValue> {
-    use pretty_assertions::assert_eq;
-    let mut entries = read_current_process(target);
-    assert_eq!(entries.len(), 1);
-    entries.pop().unwrap()
+    retry::retry(Fixed::from_millis(100).take(30), || {
+        let mut entries = read_current_process(target);
+        if entries.len() == 1 {
+            Ok(entries.pop().unwrap())
+        } else {
+            Err(format!("No entries in journal for target {}", target))
+        }
+    })
+    .unwrap()
 }
