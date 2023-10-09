@@ -2,8 +2,6 @@
 
 A pure Rust [log] logger for the [systemd journal][1].
 
-This logger used [libsystemd](https://github.com/lucab/libsystemd-rs) and has no dependency on the libsystemd C library.
-
 [log]: https://docs.rs/log
 [1]: https://www.freedesktop.org/software/systemd/man/systemd-journald.service.html
 
