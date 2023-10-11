@@ -14,28 +14,31 @@ $ cargo add systemd-journal-logger
 Then initialize the logger at the start of `main`:
 
 ```rust
-use log::{info, LevelFilter};
+use log::{info, warn, error, LevelFilter};
+use systemd_journal_logger::JournalLog;
 
-fn main() {
-    systemd_journal_logger::init();
-    log::set_max_level(LevelFilter::Info);
+JournalLog::new().unwrap().install().unwrap();
+log::set_max_level(LevelFilter::Info);
 
-    info!("Hello systemd journal");
-}
+info!("hello log");
+warn!("warning");
+error!("oops");
 ```
 
 You can also add additional fields to every log message, such as the version of your executable:
 
 ```rust
-use log::{info, LevelFilter};
+use log::{info, warn, error, LevelFilter};
+use systemd_journal_logger::JournalLog;
 
-fn main() {
-    let version = env!("CARGO_PKG_VERSION");
-    systemd_journal_logger::init_with_extra_fields(vec![("VERSION", version)]).unwrap();
-    log::set_max_level(LevelFilter::Info);
+JournalLog::new()
+    .unwrap()
+    .with_extra_fields(vec![("VERSION", env!("CARGO_PKG_VERSION"))])
+    .with_syslog_identifier("foo".to_string())
+    .install().unwrap();
+log::set_max_level(LevelFilter::Info);
 
-    info!("Hello systemd journal");
-}
+info!("this message has an extra VERSION field in the journal");
 ```
 
 These extra fields appear in the output of `journalctl --output=verbose` or in any of the JSON output formats of `journalctl`.
