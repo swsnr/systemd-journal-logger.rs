@@ -36,7 +36,7 @@ fn main() {
 
     match std::env::var(env_name) {
         Ok(target) => {
-            use systemd_journal_logger::*;
+            use systemd_journal_logger_memfd_syscall::*;
 
             JournalLog::new().unwrap().install().unwrap();
             log::set_max_level(LevelFilter::Debug);

@@ -19,7 +19,7 @@
 //!
 //! ```rust
 //! use log::{info, warn, error, LevelFilter};
-//! use systemd_journal_logger::JournalLog;
+//! use systemd_journal_logger_memfd_syscall::JournalLog;
 //!
 //! JournalLog::new().unwrap().install().unwrap();
 //! log::set_max_level(LevelFilter::Info);
@@ -43,7 +43,7 @@
 //!
 //! ```rust
 //! use log::{info, warn, error, LevelFilter};
-//! use systemd_journal_logger::JournalLog;
+//! use systemd_journal_logger_memfd_syscall::JournalLog;
 //!
 //! JournalLog::new()
 //!     .unwrap()

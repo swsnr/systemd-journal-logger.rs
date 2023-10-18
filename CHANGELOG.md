@@ -25,6 +25,7 @@ Run [`cargo-release`][cr] to publish a release.
 - `JournalLog` no longer panics when sending a log record to journald fails; instead it silently discards the error.
 - `current_exe_identifier` now returns `Option` instead of `Result`.
 - Bump MSRV to `1.71.0`.
+- (Only in the fork systemd-journal-logger-memfd-sycall): use `memfd_crate` syscall instead of libc function.
 
 ### Removed
 - `JournalLog::default`, since instantiation is now fallible.

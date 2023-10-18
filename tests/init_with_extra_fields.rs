@@ -13,7 +13,7 @@ use log::info;
 mod journal;
 
 use similar_asserts::assert_eq;
-use systemd_journal_logger::JournalLog;
+use systemd_journal_logger_memfd_syscall::JournalLog;
 
 #[test]
 fn init_with_extra_fields() {

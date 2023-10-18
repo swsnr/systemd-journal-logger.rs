@@ -11,7 +11,7 @@
 mod journal;
 
 use similar_asserts::assert_eq;
-use systemd_journal_logger::JournalLog;
+use systemd_journal_logger_memfd_syscall::JournalLog;
 
 #[derive(Debug)]
 struct SomeDummy {

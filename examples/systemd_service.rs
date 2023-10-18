@@ -25,7 +25,7 @@
 
 use log::{info, LevelFilter, Log};
 use std::io::prelude::*;
-use systemd_journal_logger::{connected_to_journal, JournalLog};
+use systemd_journal_logger_memfd_syscall::{connected_to_journal, JournalLog};
 
 struct SimpleLogger;
 

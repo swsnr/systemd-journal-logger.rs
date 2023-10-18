@@ -15,7 +15,7 @@ use log::kv::Value;
 use log::{Level, Log, Record};
 use similar_asserts::assert_eq;
 
-use systemd_journal_logger::JournalLog;
+use systemd_journal_logger_memfd_syscall::JournalLog;
 
 mod journal;
 
@@ -28,7 +28,7 @@ fn simple_log_entry() {
             .module_path(Some(module_path!()))
             .file(Some(file!()))
             .line(Some(92749))
-            .args(format_args!("systemd_journal_logger test: {}", 42))
+            .args(format_args!("systemd_journal_logger_memfd_syscall test: {}", 42))
             .build(),
     );
 
@@ -36,7 +36,7 @@ fn simple_log_entry() {
 
     assert_eq!(entry["TARGET"], "simple_log_entry");
     assert_eq!(entry["PRIORITY"], "4");
-    assert_eq!(entry["MESSAGE"], "systemd_journal_logger test: 42");
+    assert_eq!(entry["MESSAGE"], "systemd_journal_logger_memfd_syscall test: 42");
     assert_eq!(entry["CODE_FILE"], file!());
     assert_eq!(entry["CODE_LINE"], "92749");
     assert_eq!(entry["CODE_MODULE"], module_path!());
@@ -65,7 +65,7 @@ fn internal_null_byte_in_message() {
         &Record::builder()
             .level(Level::Warn)
             .target("internal_null_byte_in_message")
-            .args(format_args!("systemd_journal_logger with \x00 byte"))
+            .args(format_args!("systemd_journal_logger_memfd_syscall with \x00 byte"))
             .build(),
     );
 
@@ -73,7 +73,7 @@ fn internal_null_byte_in_message() {
     assert_eq!(entry["PRIORITY"], "4");
     assert_eq!(
         entry["MESSAGE"].as_text(),
-        "systemd_journal_logger with \x00 byte"
+        "systemd_journal_logger_memfd_syscall with \x00 byte"
     );
 }
 
@@ -84,7 +84,7 @@ fn multiline_message() {
             .level(Level::Error)
             .target("multiline_message")
             .args(format_args!(
-                "systemd_journal_logger test\nwith\nline {}",
+                "systemd_journal_logger_memfd_syscall test\nwith\nline {}",
                 "breaks"
             ))
             .build(),
@@ -94,7 +94,7 @@ fn multiline_message() {
     assert_eq!(entry["PRIORITY"], "3");
     assert_eq!(
         entry["MESSAGE"],
-        "systemd_journal_logger test\nwith\nline breaks"
+        "systemd_journal_logger_memfd_syscall test\nwith\nline breaks"
     );
 }
 
