@@ -59,6 +59,7 @@
 //! output formats of `journalctl`, e.g. `journalctl --output=json`.
 
 #![deny(warnings, missing_docs, clippy::all)]
+#![forbid(unsafe_code)]
 
 use std::io::prelude::*;
 use std::os::fd::AsFd;
@@ -70,8 +71,6 @@ use log::{Level, Log, Metadata, Record, SetLoggerError};
 
 mod client;
 mod fields;
-mod memfd;
-mod socket;
 
 use fields::*;
 
