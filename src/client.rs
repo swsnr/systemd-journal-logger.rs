@@ -25,11 +25,6 @@ use rustix::net::SocketAddrUnix;
 
 const JOURNALD_PATH: &str = "/run/systemd/journal/socket";
 
-// We use a static buffer size, since we don't send arbitrary control messages
-// here; we just need enough space to send a single file descriptor.  This way
-// we get away without additional allocations.
-const CMSG_BUFSIZE: usize = 64;
-
 pub struct JournalClient {
     socket: UnixDatagram,
 }
@@ -61,28 +56,40 @@ impl JournalClient {
             })
     }
 
-    pub fn send_large_payload(&self, payload: &[u8]) -> std::io::Result<usize> {
-        // If the payload's too large for a single datagram, send it through a memfd, see
-        // https://systemd.io/JOURNAL_NATIVE_PROTOCOL/
-        // Write the whole payload to a memfd
+    /// Send a large payload to journald.
+    ///
+    /// Write payload to a memfd, seal it, and then send the FD to the socket in
+    /// an ancilliary message.
+    ///
+    /// See <https://systemd.io/JOURNAL_NATIVE_PROTOCOL/>.
+    fn send_large_payload(&self, payload: &[u8]) -> std::io::Result<usize> {
         let mut mem: File = memfd_create(
             "systemd-journal-logger",
             MemfdFlags::ALLOW_SEALING | MemfdFlags::CLOEXEC,
         )?
         .into();
         mem.write_all(payload)?;
-        // Fully seal the memfd to signal journald that its backing data won't resize anymore
-        // and so is safe to mmap.
+        // Fully seal the memfd to signal journald that it is safe to mmap now.
         fcntl_add_seals(
             &mem,
             SealFlags::SEAL | SealFlags::SHRINK | SealFlags::WRITE | SealFlags::GROW,
         )?;
-        // Send the FD over to journald.
         let fds = &[mem.as_fd()];
         let scm_rights = rustix::net::SendAncillaryMessage::ScmRights(fds);
-        let mut buffer = [0; CMSG_BUFSIZE];
-        assert!(scm_rights.size() <= buffer.len());
+        // We use a static buffer size here, because we don't need to account
+        // for arbitrary messages; we just need enough space for a single FD.
+        // With a static buffer we get away without any additional heap
+        // allocations here.
+        let mut buffer = [0; 64];
+        // Just a sanity check should we ever get the static buffer size wrong.
+        assert!(
+            scm_rights.size() <= buffer.len(),
+            "static buffer size not sufficient for ScmRights message of size {}",
+            scm_rights.size()
+        );
         let mut buffer = SendAncillaryBuffer::new(&mut buffer);
+        // push returns false if the buffer is too small to add the new message;
+        // let's guard against this.
         assert!(buffer.push(scm_rights), "Failed to push ScmRights message");
         let size = sendmsg_unix(
             &self.socket,
