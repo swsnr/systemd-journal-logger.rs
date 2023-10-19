@@ -8,13 +8,27 @@
 
 //! A journald client.
 
+use std::fs::File;
 use std::io::prelude::*;
 use std::os::fd::AsFd;
 use std::os::unix::net::UnixDatagram;
 
-use crate::{memfd, socket};
+use rustix::fs::fcntl_add_seals;
+use rustix::fs::memfd_create;
+use rustix::fs::MemfdFlags;
+use rustix::fs::SealFlags;
+use rustix::io::Errno;
+use rustix::net::sendmsg_unix;
+use rustix::net::SendAncillaryBuffer;
+use rustix::net::SendFlags;
+use rustix::net::SocketAddrUnix;
 
 const JOURNALD_PATH: &str = "/run/systemd/journal/socket";
+
+// We use a static buffer size, since we don't send arbitrary control messages
+// here; we just need enough space to send a single file descriptor.  This way
+// we get away without additional allocations.
+const CMSG_BUFSIZE: usize = 64;
 
 pub struct JournalClient {
     socket: UnixDatagram,
@@ -39,7 +53,7 @@ impl JournalClient {
         self.socket
             .send_to(payload, JOURNALD_PATH)
             .or_else(|error| {
-                if Some(libc::EMSGSIZE) == error.raw_os_error() {
+                if Some(Errno::MSGSIZE) == Errno::from_io_error(&error) {
                     self.send_large_payload(payload)
                 } else {
                     Err(error)
@@ -51,11 +65,32 @@ impl JournalClient {
         // If the payload's too large for a single datagram, send it through a memfd, see
         // https://systemd.io/JOURNAL_NATIVE_PROTOCOL/
         // Write the whole payload to a memfd
-        let mut mem = memfd::create_sealable()?;
+        let mut mem: File = memfd_create(
+            "systemd-journal-logger",
+            MemfdFlags::ALLOW_SEALING | MemfdFlags::CLOEXEC,
+        )?
+        .into();
         mem.write_all(payload)?;
         // Fully seal the memfd to signal journald that its backing data won't resize anymore
         // and so is safe to mmap.
-        memfd::seal_fully(mem.as_fd())?;
-        socket::send_one_fd_to(&self.socket, mem.as_fd(), JOURNALD_PATH)
+        fcntl_add_seals(
+            &mem,
+            SealFlags::SEAL | SealFlags::SHRINK | SealFlags::WRITE | SealFlags::GROW,
+        )?;
+        // Send the FD over to journald.
+        let fds = &[mem.as_fd()];
+        let scm_rights = rustix::net::SendAncillaryMessage::ScmRights(fds);
+        let mut buffer = [0; CMSG_BUFSIZE];
+        assert!(scm_rights.size() <= buffer.len());
+        let mut buffer = SendAncillaryBuffer::new(&mut buffer);
+        assert!(buffer.push(scm_rights), "Failed to push ScmRights message");
+        let size = sendmsg_unix(
+            &self.socket,
+            &SocketAddrUnix::new(JOURNALD_PATH)?,
+            &[],
+            &mut buffer,
+            SendFlags::NOSIGNAL,
+        )?;
+        Ok(size)
     }
 }

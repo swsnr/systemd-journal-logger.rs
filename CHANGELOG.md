@@ -11,6 +11,11 @@ Run [`cargo-release`][cr] to publish a release.
 
 ## [Unreleased]
 
+### Changed
+- Depend on rustix instead of libc to get rid of unsafe code (see [GH-24]).
+
+[GH-24]: https://github.com/swsnr/systemd-journal-logger.rs/pull/24
+
 ## [2.0.0] – 2023-10-01
 
 ### Added
