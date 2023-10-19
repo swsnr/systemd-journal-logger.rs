@@ -63,7 +63,6 @@
 
 use std::io::prelude::*;
 use std::os::fd::AsFd;
-use std::os::linux::fs::MetadataExt;
 
 use client::JournalClient;
 use log::kv::{Error, Key, Value, Visitor};
@@ -80,11 +79,8 @@ use fields::*;
 /// file descriptor match the value of `$JOURNAL_STREAM` (see `systemd.exec(5)`).
 /// Otherwise, return `false`.
 pub fn connected_to_journal() -> bool {
-    std::io::stderr()
-        .as_fd()
-        .try_clone_to_owned()
-        .and_then(|fd| std::fs::File::from(fd).metadata())
-        .map(|metadata| format!("{}:{}", metadata.st_dev(), metadata.st_ino()))
+    rustix::fs::fstat(std::io::stderr().as_fd())
+        .map(|stat| format!("{}:{}", stat.st_dev, stat.st_ino))
         .ok()
         .and_then(|stderr| {
             std::env::var_os("JOURNAL_STREAM").map(|s| s.to_string_lossy() == stderr.as_str())
