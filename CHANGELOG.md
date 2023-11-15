@@ -11,6 +11,11 @@ Run [`cargo-release`][cr] to publish a release.
 
 ## [Unreleased]
 
+### Changed
+- Decrease MSRV to 1.66, as actually required (see [GH-26]).
+
+[GH-26]: https://github.com/swsnr/systemd-journal-logger.rs/pull/26
+
 ## [2.1.0] – 2023-10-19
 
 ### Changed
