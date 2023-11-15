@@ -56,6 +56,10 @@ Both loggers use mostly the same fields and priorities as this implementation.
 [1]: https://docs.rs/systemd/0.8.2/systemd/journal/struct.JournalLog.html
 [slog]: https://github.com/slog-rs/slog
 
+## Minimum Supported Rust Version
+
+The MSRV used in this repo is best effort only and may be bumped at any time, even in patch releases.
+
 ## License
 
 Either [MIT](./LICENSE-MIT) or [Apache 2.0](./LICENSE-APACHE-2.0), at your option.
