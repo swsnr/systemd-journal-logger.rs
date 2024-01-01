@@ -38,7 +38,7 @@ impl FieldValue {
         match self {
             FieldValue::Text(v) => Cow::Borrowed(v.as_str()),
             FieldValue::Binary(binary) => String::from_utf8_lossy(binary),
-            FieldValue::Array(v) => Cow::Borrowed(v.get(0).map_or("", |s| s.as_str())),
+            FieldValue::Array(v) => Cow::Borrowed(v.first().map_or("", |s| s.as_str())),
         }
     }
 }
