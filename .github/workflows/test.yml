@@ -3,14 +3,14 @@ name: Test
 on:
   push:
     # Don't build tags; that's redundant with pushes to main normally.
-    tags-ignore: '*'
+    tags-ignore: "*"
     # Only build main, for all other branches rely on pull requests.  This
     # avoids duplicate builds for pull requests.
     branches: main
     # Don't build for trivial changes
     paths-ignore:
-      - '*.md'
-      - 'LICENSE*'
+      - "*.md"
+      - "LICENSE*"
   pull_request:
 
 jobs:
@@ -19,19 +19,19 @@ jobs:
     strategy:
       matrix:
         # Test against MRSV and stable
-        rust: ['1.66.0', 'stable']
+        rust: ["1.66.0", "stable"]
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@master
         with:
           components: clippy,rustfmt
           toolchain: ${{ matrix.rust }}
-      - run: cargo build --all-targets
-      - run: cargo clippy --all-targets
+      - run: cargo build --all-targets --locked
+      - run: cargo clippy --all-targets --locked
         # Run clippy only on stable target; we don't need lints from old Rust
         # versions.
         if: "${{ matrix.rust == 'stable' }}"
-      - run: cargo test
+      - run: cargo test --locked
       - run: cargo doc
       - run: cargo fmt -- --check
         # Run fmt check only on stable rust, as our reference.
@@ -40,11 +40,11 @@ jobs:
   cargo-deny:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-    - uses: EmbarkStudios/cargo-deny-action@v1
+      - uses: actions/checkout@v4
+      - uses: EmbarkStudios/cargo-deny-action@v1
 
   semver-checks:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-    - uses: obi1kenobi/cargo-semver-checks-action@v2
+      - uses: actions/checkout@v4
+      - uses: obi1kenobi/cargo-semver-checks-action@v2
