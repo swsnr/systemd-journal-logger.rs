@@ -30,7 +30,7 @@ fn log_with_extra_fields() {
     );
     let dummy = SomeDummy { foo: 42 };
 
-    log::error!(target: "log_with_extra_fields", dummy=log::as_debug!(dummy), spam="no eggs", error=log::as_error!(error); "Hello World");
+    log::error!(target: "log_with_extra_fields", dummy:?, spam = "no eggs", error:err; "Hello World");
 
     let entry = journal::read_one_entry("log_with_extra_fields");
     assert_eq!(entry["MESSAGE"], "Hello World");
