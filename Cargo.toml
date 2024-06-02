@@ -15,9 +15,6 @@ edition = "2021"
 rust-version = "1.66"
 
 [dependencies]
-# libsystemd isn't no_std compatible so we can conveniently enable log's std
-# feature unconditionally.  We require std for the set_boxed_logger field in
-# init_with_extra_fields.
 log = { version = "^0.4", features = ["std", "kv_unstable"] }
 rustix = { version = "0.38.20", default-features = false, features = ["std", "fs", "net"] }
 
