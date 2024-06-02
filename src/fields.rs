@@ -44,7 +44,7 @@ pub fn escape_journal_key(key: &str) -> Vec<u8> {
 fn put_field_name(buffer: &mut Vec<u8>, name: FieldName<'_>) {
     match name {
         FieldName::WellFormed(name) => buffer.extend_from_slice(name.as_bytes()),
-        FieldName::WriteEscaped(name) if name.is_empty() => buffer.extend_from_slice(b"EMPTY"),
+        FieldName::WriteEscaped("") => buffer.extend_from_slice(b"EMPTY"),
         // FIXME: We should try to find a way to do this with less allocations.
         FieldName::WriteEscaped(name) => buffer.extend_from_slice(&escape_journal_key(name)),
     }
