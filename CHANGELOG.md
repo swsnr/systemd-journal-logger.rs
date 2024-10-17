@@ -11,6 +11,9 @@ Run [`cargo-release`][cr] to publish a release.
 
 ## [Unreleased]
 
+### Changed
+- Use `kv` instead of `unstable_kv` of log.
+
 ## [2.1.1] – 2023-11-15
 
 ### Changed

@@ -65,7 +65,7 @@ use std::io::prelude::*;
 use std::os::fd::AsFd;
 
 use client::JournalClient;
-use log::kv::{Error, Key, Value, Visitor};
+use log::kv::{Error, Key, Value, VisitSource};
 use log::{Level, Log, Metadata, Record, SetLoggerError};
 
 mod client;
@@ -99,7 +99,7 @@ pub fn current_exe_identifier() -> Option<String> {
 
 struct WriteKeyValues<'a>(&'a mut Vec<u8>);
 
-impl<'a, 'kvs> Visitor<'kvs> for WriteKeyValues<'a> {
+impl<'a, 'kvs> VisitSource<'kvs> for WriteKeyValues<'a> {
     fn visit_pair(&mut self, key: Key<'kvs>, value: Value<'kvs>) -> Result<(), Error> {
         put_field_length_encoded(self.0, FieldName::WriteEscaped(key.as_str()), value);
         Ok(())
