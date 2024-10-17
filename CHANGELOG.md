@@ -11,6 +11,8 @@ Run [`cargo-release`][cr] to publish a release.
 
 ## [Unreleased]
 
+## [2.2.0] – 2024-10-17
+
 ### Changed
 - Use `kv` instead of `unstable_kv` of log.
 
@@ -140,7 +142,8 @@ Initial release with `systemd_journal_logger::LOG` and `systemd_journal_logger::
 
 Do **not use** this version; it looses multiline messages and has been yanked from crates.io.
 
-[Unreleased]: https://github.com/swsnr/systemd-journal-logger.rs/compare/v2.1.1...HEAD
+[Unreleased]: https://github.com/swsnr/systemd-journal-logger.rs/compare/v2.2.0...HEAD
+[2.2.0]: https://github.com/swsnr/systemd-journal-logger.rs/compare/v2.1.1...v2.2.0
 [2.1.1]: https://github.com/swsnr/systemd-journal-logger.rs/compare/v2.1.0...v2.1.1
 [2.1.0]: https://github.com/swsnr/systemd-journal-logger.rs/compare/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/swsnr/systemd-journal-logger.rs/compare/v1.0.0...v2.0.0
