@@ -69,7 +69,7 @@ impl PutAsFieldValue for &Arguments<'_> {
     }
 }
 
-impl<'a> PutAsFieldValue for Value<'a> {
+impl PutAsFieldValue for Value<'_> {
     fn put_field_value(self, buffer: &mut Vec<u8>) {
         // TODO: We can probably write the value more efficiently by visiting it?
         write!(buffer, "{}", self).unwrap()
