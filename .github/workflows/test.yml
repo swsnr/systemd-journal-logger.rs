@@ -24,27 +24,19 @@ jobs:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@master
         with:
-          components: clippy,rustfmt
           toolchain: ${{ matrix.rust }}
       - run: cargo build --all-targets --locked
-      - run: cargo clippy --all-targets --locked
-        # Run clippy only on stable target; we don't need lints from old Rust
-        # versions.
-        if: "${{ matrix.rust == 'stable' }}"
       - run: cargo test --locked
-      - run: cargo doc
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy,rustfmt
+      - run: cargo clippy --all-targets --locked
       - run: cargo fmt -- --check
-        # Run fmt check only on stable rust, as our reference.
-        if: "${{ matrix.rust == 'stable' }}"
-
-  cargo-deny:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
+      - run: cargo doc
       - uses: EmbarkStudios/cargo-deny-action@v2
-
-  semver-checks:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
       - uses: obi1kenobi/cargo-semver-checks-action@v2
