@@ -1,0 +1,13 @@
+
+# cargo-vet audits file
+
+[[audits.errno]]
+who = "Sebastian Wiesner <sebastian@swsnr.de>"
+criteria = "safe-to-deploy"
+delta = "0.3.3 -> 0.3.9"
+notes = "Changes to unsafe code seem sound; mutable buffer is passed with appropriate buffer length."
+
+[[audits.retry]]
+who = "Sebastian Wiesner <sebastian@swsnr.de>"
+criteria = "safe-to-run"
+version = "2.0.0"
