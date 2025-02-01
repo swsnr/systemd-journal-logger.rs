@@ -16,7 +16,11 @@ rust-version = "1.66"
 
 [dependencies]
 log = { version = "^0.4", features = ["std", "kv"] }
-rustix = { version = "0.38.44", default-features = false, features = ["std", "fs", "net"] }
+rustix = { version = "0.38.44", default-features = false, features = [
+    "std",
+    "fs",
+    "net",
+] }
 
 [dev-dependencies]
 similar-asserts = "1.6.1"
@@ -43,3 +47,5 @@ pre-release-replacements = [
 ]
 # Github actions checks this for us.
 verify = false
+# Github actions does this for us.
+publish = false
