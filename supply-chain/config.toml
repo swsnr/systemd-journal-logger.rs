@@ -26,33 +26,9 @@ audit-as-crates-io = false
 version = "0.15.10"
 criteria = "safe-to-run"
 
-[[exemptions.erased-serde]]
-version = "0.4.5"
-criteria = "safe-to-deploy"
-
-[[exemptions.libc]]
-version = "0.2.161"
-criteria = "safe-to-deploy"
-
-[[exemptions.linux-raw-sys]]
-version = "0.4.14"
-criteria = "safe-to-deploy"
-
-[[exemptions.memchr]]
-version = "2.7.4"
-criteria = "safe-to-run"
-
 [[exemptions.once_cell]]
 version = "1.20.2"
 criteria = "safe-to-run"
-
-[[exemptions.rustix]]
-version = "0.38.44"
-criteria = "safe-to-deploy"
-
-[[exemptions.ryu]]
-version = "1.0.19"
-criteria = "safe-to-deploy"
 
 [[exemptions.serde_fmt]]
 version = "1.0.3"
@@ -96,14 +72,6 @@ criteria = "safe-to-deploy"
 
 [[exemptions.sval_serde]]
 version = "2.14.0"
-criteria = "safe-to-deploy"
-
-[[exemptions.syn]]
-version = "2.0.96"
-criteria = "safe-to-deploy"
-
-[[exemptions.typeid]]
-version = "1.0.2"
 criteria = "safe-to-deploy"
 
 [[exemptions.value-bag]]
