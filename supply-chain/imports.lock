@@ -1,6 +1,13 @@
 
 # cargo-vet imports lock
 
+[[publisher.unicode-segmentation]]
+version = "1.12.0"
+when = "2024-09-13"
+user-id = 1139
+user-login = "Manishearth"
+user-name = "Manish Goregaokar"
+
 [[audits.bytecode-alliance.audits.errno]]
 who = "Dan Gohman <dev@sunfishcode.online>"
 criteria = "safe-to-deploy"
@@ -681,6 +688,12 @@ criteria = "safe-to-run"
 delta = "1.0.134 -> 1.0.137"
 aggregated-from = "https://chromium.googlesource.com/chromium/src/+/main/third_party/rust/chromium_crates_io/supply-chain/audits.toml?format=TEXT"
 
+[[audits.google.audits.serde_json]]
+who = "Liza Burakova <liza@chromium.org>"
+criteria = "safe-to-run"
+delta = "1.0.137 -> 1.0.138"
+aggregated-from = "https://chromium.googlesource.com/chromium/src/+/main/third_party/rust/chromium_crates_io/supply-chain/audits.toml?format=TEXT"
+
 [[audits.google.audits.unicode-ident]]
 who = "Lukasz Anforowicz <lukasza@chromium.org>"
 criteria = "safe-to-deploy"
@@ -718,6 +731,15 @@ delta = "1.0.14 -> 1.0.15"
 notes = "No changes relevant to any of these criteria."
 aggregated-from = "https://chromium.googlesource.com/chromium/src/+/main/third_party/rust/chromium_crates_io/supply-chain/audits.toml?format=TEXT"
 
+[[audits.mozilla.wildcard-audits.unicode-segmentation]]
+who = "Manish Goregaokar <manishsmail@gmail.com>"
+criteria = "safe-to-deploy"
+user-id = 1139 # Manish Goregaokar (Manishearth)
+start = "2019-05-15"
+end = "2026-02-01"
+notes = "All code written or reviewed by Manish"
+aggregated-from = "https://hg.mozilla.org/mozilla-central/raw-file/tip/supply-chain/audits.toml"
+
 [[audits.mozilla.audits.errno]]
 who = "Mike Hommey <mh+mozilla@glandium.org>"
 criteria = "safe-to-deploy"
@@ -733,8 +755,8 @@ aggregated-from = "https://hg.mozilla.org/mozilla-central/raw-file/tip/supply-ch
 
 [[audits.swsnr.audits.serde_json]]
 who = "Sebastian Wiesner <sebastian@swsnr.de>"
-criteria = "safe-to-deploy"
-delta = "1.0.137 -> 1.0.138"
+criteria = "safe-to-run"
+delta = "1.0.138 -> 1.0.139"
 aggregated-from = "https://raw.githubusercontent.com/swsnr/turnon/refs/heads/main/supply-chain/audits.toml"
 
 [[audits.swsnr.audits.unicode-ident]]
