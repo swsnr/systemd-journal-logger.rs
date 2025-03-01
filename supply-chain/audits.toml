@@ -30,6 +30,11 @@ criteria = "safe-to-deploy"
 delta = "1.0.217 -> 1.0.218"
 notes = "No code changes"
 
+[[audits.similar-asserts]]
+who = "Sebastian Wiesner <sebastian@swsnr.de>"
+criteria = "safe-to-run"
+delta = "1.6.1 -> 1.7.0"
+
 [[trusted.erased-serde]]
 criteria = "safe-to-deploy"
 user-id = 3618 # David Tolnay (dtolnay)
