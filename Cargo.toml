@@ -49,3 +49,5 @@ pre-release-replacements = [
 verify = false
 # Github actions does this for us.
 publish = false
+# We push commit and tag separately to ensure that the pipeline passes for the tag
+push = false
