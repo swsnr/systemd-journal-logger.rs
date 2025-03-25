@@ -10,6 +10,7 @@
 
 use std::fs::File;
 use std::io::prelude::*;
+use std::mem::MaybeUninit;
 use std::os::fd::AsFd;
 use std::os::unix::net::UnixDatagram;
 
@@ -18,8 +19,9 @@ use rustix::fs::memfd_create;
 use rustix::fs::MemfdFlags;
 use rustix::fs::SealFlags;
 use rustix::io::Errno;
-use rustix::net::sendmsg_unix;
+use rustix::net::sendmsg_addr;
 use rustix::net::SendAncillaryBuffer;
+use rustix::net::SendAncillaryMessage;
 use rustix::net::SendFlags;
 use rustix::net::SocketAddrUnix;
 
@@ -74,24 +76,18 @@ impl JournalClient {
             &mem,
             SealFlags::SEAL | SealFlags::SHRINK | SealFlags::WRITE | SealFlags::GROW,
         )?;
-        let fds = &[mem.as_fd()];
-        let scm_rights = rustix::net::SendAncillaryMessage::ScmRights(fds);
-        // We use a static buffer size here, because we don't need to account
-        // for arbitrary messages; we just need enough space for a single FD.
-        // With a static buffer we get away without any additional heap
-        // allocations here.
-        let mut buffer = [0; 64];
-        // Just a sanity check should we ever get the static buffer size wrong.
-        assert!(
-            scm_rights.size() <= buffer.len(),
-            "static buffer size not sufficient for ScmRights message of size {}",
-            scm_rights.size()
-        );
+        // Allocate a control buffer for the one file descriptor we will send
+        let mut buffer = [MaybeUninit::uninit(); rustix::cmsg_space!(ScmRights(1))];
         let mut buffer = SendAncillaryBuffer::new(&mut buffer);
+        // Write the file descriptor to the control buffer
+        let fds = &[mem.as_fd()];
         // push returns false if the buffer is too small to add the new message;
         // let's guard against this.
-        assert!(buffer.push(scm_rights), "Failed to push ScmRights message");
-        let size = sendmsg_unix(
+        assert!(
+            buffer.push(SendAncillaryMessage::ScmRights(fds)),
+            "Failed to push ScmRights message"
+        );
+        let size = sendmsg_addr(
             &self.socket,
             &SocketAddrUnix::new(JOURNALD_PATH)?,
             &[],

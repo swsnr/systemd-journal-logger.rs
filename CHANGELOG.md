@@ -11,6 +11,9 @@ Run [`cargo-release`][cr] to publish a release.
 
 ## [Unreleased]
 
+### Changed
+- Update to rustix 1.
+
 ## [2.2.0] – 2024-10-17
 
 ### Changed

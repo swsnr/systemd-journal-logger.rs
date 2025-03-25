@@ -16,8 +16,8 @@ user-login = "JohnTitor"
 user-name = "Yuki Okushi"
 
 [[publisher.linux-raw-sys]]
-version = "0.4.14"
-when = "2024-05-17"
+version = "0.9.3"
+when = "2025-03-14"
 user-id = 6825
 user-login = "sunfishcode"
 user-name = "Dan Gohman"
@@ -30,8 +30,8 @@ user-login = "BurntSushi"
 user-name = "Andrew Gallant"
 
 [[publisher.rustix]]
-version = "0.38.44"
-when = "2025-01-21"
+version = "1.0.3"
+when = "2025-03-18"
 user-id = 6825
 user-login = "sunfishcode"
 user-name = "Dan Gohman"
@@ -91,6 +91,15 @@ notes = "More platforms, more definitions, more headers, it's still just `libc`"
 who = "Dan Gohman <dev@sunfishcode.online>"
 criteria = "safe-to-deploy"
 delta = "0.2.158 -> 0.2.161"
+
+[[audits.bytecode-alliance.audits.libc]]
+who = "Alex Crichton <alex@alexcrichton.com>"
+criteria = "safe-to-deploy"
+delta = "0.2.161 -> 0.2.171"
+notes = """
+Lots of unsafe, but that's par for the course with libc, it's all FFI type
+definitions updates/adjustments/etc.
+"""
 
 [audits.embark-studios.audits]
 
