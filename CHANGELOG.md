@@ -11,6 +11,9 @@ Run [`cargo-release`][cr] to publish a release.
 
 ## [Unreleased]
 
+### Changed
+- Move to <https://codeberg.org/swsnr/systemd-journal-logger.rs>.
+
 ## [2.2.1] – 2025-03-25
 
 ### Changed
@@ -26,14 +29,14 @@ Run [`cargo-release`][cr] to publish a release.
 ### Changed
 - Decrease MSRV to 1.66, as actually required (see [GH-26]).
 
-[GH-26]: https://github.com/swsnr/systemd-journal-logger.rs/pull/26
+[GH-26]: https://codeberg.org/swsnr/systemd-journal-logger.rs/pulls/26
 
 ## [2.1.0] – 2023-10-19
 
 ### Changed
 - Depend on rustix instead of libc to get rid of unsafe code (see [GH-24]).
 
-[GH-24]: https://github.com/swsnr/systemd-journal-logger.rs/pull/24
+[GH-24]: https://codeberg.org/swsnr/systemd-journal-logger.rs/pulls/24
 
 ## [2.0.0] – 2023-10-01
 
@@ -67,8 +70,8 @@ Run [`cargo-release`][cr] to publish a release.
 - Static `LOG` instance.  Always create your own `JournalLog` instance now (see [GH-17]).
 - `init` and `init_with_extra_fields`.  Create your own `JournalLog` instance now, and call `install` (see [GH-17]).
 
-[GH-16]: https://github.com/swsnr/systemd-journal-logger.rs/issues/16
-[GH-17]: https://github.com/swsnr/systemd-journal-logger.rs/pull/17
+[GH-16]: https://codeberg.org/swsnr/systemd-journal-logger.rs/issues/16
+[GH-17]: https://codeberg.org/swsnr/systemd-journal-logger.rs/pulls/17
 
 ## [0.7.0] – 2022-12-23
 
@@ -81,7 +84,7 @@ Run [`cargo-release`][cr] to publish a release.
 - Bump MRSV to 1.56.0 (see [GH-11]).
 - Update Github URL to <https://github.com/swsnr/systemd-journal-logger.rs>.
 
-[GH-11]: https://github.com/swsnr/systemd-journal-logger.rs/pull/11
+[GH-11]: https://codeberg.org/swsnr/systemd-journal-logger.rs/pulls/11
 
 ## [0.5.1] – 2022-10-15
 
@@ -112,7 +115,7 @@ Run [`cargo-release`][cr] to publish a release.
 ### Fixed
 - Compile on arm7 targets (see [GH-7]).
 
-[GH-7]: https://github.com/swsnr/systemd-journal-logger.rs/pull/7
+[GH-7]: https://codeberg.org/swsnr/systemd-journal-logger.rs/pulls/7
 
 ## [0.3.0] – 2021-06-07
 
@@ -126,9 +129,9 @@ Run [`cargo-release`][cr] to publish a release.
 - Do not silently ignore journal errors; instead panic if the logger fails to send a message to the systemd journal.
 - Use `CODE_MODULE` field for the Rust module path, for compatibility with the `slog-journal` and `systemd` crates.
 
-[GH-1]: https://github.com/swsnr/systemd-journal-logger.rs/pull/1
-[GH-3]: https://github.com/swsnr/systemd-journal-logger.rs/pull/3
-[GH-5]: https://github.com/swsnr/systemd-journal-logger.rs/pull/5
+[GH-1]: https://codeberg.org/swsnr/systemd-journal-logger.rs/pulls/1
+[GH-3]: https://codeberg.org/swsnr/systemd-journal-logger.rs/pulls/3
+[GH-5]: https://codeberg.org/swsnr/systemd-journal-logger.rs/pulls/5
 
 ## [0.2.0] – 2021-06-01
 
@@ -136,10 +139,10 @@ Run [`cargo-release`][cr] to publish a release.
 
 - Multiline messages are no longer lost (see [GH-2]), following an update of [libsystemd] (see [libsystemd GH-70] and [libsystemd GH-72]).
 
-[GH-2]: https://github.com/swsnr/systemd-journal-logger.rs/pull/2
+[GH-2]: https://codeberg.org/swsnr/systemd-journal-logger.rs/pulls/2
 [libsystemd]: https://github.com/lucab/libsystemd-rs
 [libsystemd GH-70]: https://github.com/lucab/libsystemd-rs/issues/70
-[libsystemd GH-72]: https://github.com/lucab/libsystemd-rs/pull/72
+[libsystemd GH-72]: https://github.com/lucab/libsystemd-rs/pulls/72
 
 ## [0.1.0] – 2021-05-28 (yanked)
 
@@ -147,20 +150,20 @@ Initial release with `systemd_journal_logger::LOG` and `systemd_journal_logger::
 
 Do **not use** this version; it looses multiline messages and has been yanked from crates.io.
 
-[Unreleased]: https://github.com/swsnr/systemd-journal-logger.rs/compare/v2.2.1...HEAD
-[2.2.1]: https://github.com/swsnr/systemd-journal-logger.rs/compare/v2.2.0...v2.2.1
-[2.2.0]: https://github.com/swsnr/systemd-journal-logger.rs/compare/v2.1.1...v2.2.0
-[2.1.1]: https://github.com/swsnr/systemd-journal-logger.rs/compare/v2.1.0...v2.1.1
-[2.1.0]: https://github.com/swsnr/systemd-journal-logger.rs/compare/v2.0.0...v2.1.0
-[2.0.0]: https://github.com/swsnr/systemd-journal-logger.rs/compare/v1.0.0...v2.0.0
-[1.0.0]: https://github.com/swsnr/systemd-journal-logger.rs/compare/v0.7.0...v1.0.0
-[0.7.0]: https://github.com/swsnr/systemd-journal-logger.rs/compare/v0.6.0...v0.7.0
-[0.6.0]: https://github.com/swsnr/systemd-journal-logger.rs/compare/v0.5.1...v0.6.0
-[0.5.1]: https://github.com/swsnr/systemd-journal-logger.rs/compare/v0.5.0...v0.5.1
-[0.5.0]: https://github.com/swsnr/systemd-journal-logger.rs/compare/v0.4.1...v0.5.0
-[0.4.1]: https://github.com/swsnr/systemd-journal-logger.rs/compare/v0.4.0...v0.4.1
-[0.4.0]: https://github.com/swsnr/systemd-journal-logger.rs/compare/v0.3.1...v0.4.0
-[0.3.1]: https://github.com/swsnr/systemd-journal-logger.rs/compare/v0.3.0...v0.3.1
-[0.3.0]: https://github.com/swsnr/systemd-journal-logger.rs/compare/v0.2.0...v0.3.0
-[0.2.0]: https://github.com/swsnr/systemd-journal-logger.rs/compare/v0.1.0...v0.2.0
-[0.1.0]: https://github.com/swsnr/systemd-journal-logger.rs/releases/tag/v0.1.0
+[Unreleased]: https://codeberg.org/swsnr/systemd-journal-logger.rs/compare/v2.2.1...HEAD
+[2.2.1]: https://codeberg.org/swsnr/systemd-journal-logger.rs/compare/v2.2.0...v2.2.1
+[2.2.0]: https://codeberg.org/swsnr/systemd-journal-logger.rs/compare/v2.1.1...v2.2.0
+[2.1.1]: https://codeberg.org/swsnr/systemd-journal-logger.rs/compare/v2.1.0...v2.1.1
+[2.1.0]: https://codeberg.org/swsnr/systemd-journal-logger.rs/compare/v2.0.0...v2.1.0
+[2.0.0]: https://codeberg.org/swsnr/systemd-journal-logger.rs/compare/v1.0.0...v2.0.0
+[1.0.0]: https://codeberg.org/swsnr/systemd-journal-logger.rs/compare/v0.7.0...v1.0.0
+[0.7.0]: https://codeberg.org/swsnr/systemd-journal-logger.rs/compare/v0.6.0...v0.7.0
+[0.6.0]: https://codeberg.org/swsnr/systemd-journal-logger.rs/compare/v0.5.1...v0.6.0
+[0.5.1]: https://codeberg.org/swsnr/systemd-journal-logger.rs/compare/v0.5.0...v0.5.1
+[0.5.0]: https://codeberg.org/swsnr/systemd-journal-logger.rs/compare/v0.4.1...v0.5.0
+[0.4.1]: https://codeberg.org/swsnr/systemd-journal-logger.rs/compare/v0.4.0...v0.4.1
+[0.4.0]: https://codeberg.org/swsnr/systemd-journal-logger.rs/compare/v0.3.1...v0.4.0
+[0.3.1]: https://codeberg.org/swsnr/systemd-journal-logger.rs/compare/v0.3.0...v0.3.1
+[0.3.0]: https://codeberg.org/swsnr/systemd-journal-logger.rs/compare/v0.2.0...v0.3.0
+[0.2.0]: https://codeberg.org/swsnr/systemd-journal-logger.rs/compare/v0.1.0...v0.2.0
+[0.1.0]: https://codeberg.org/swsnr/systemd-journal-logger.rs/releases/tag/v0.1.0

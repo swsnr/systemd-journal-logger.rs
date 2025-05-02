@@ -39,7 +39,7 @@
 //! systemd) and fall back to logging to standard error if that's not the
 //! case.  Take a look at the [systemd_service.rs] example for details.
 //!
-//! [systemd_service.rs]: https://github.com/swsnr/systemd-journal-logger.rs/blob/main/examples/systemd_service.rs
+//! [systemd_service.rs]: https://codeberg.org/swsnr/systemd-journal-logger.rs/src/branch/main/examples/systemd_service.rs
 //!
 //! ```rust
 //! use log::{info, warn, error, LevelFilter};
