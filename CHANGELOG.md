@@ -13,6 +13,7 @@ Run [`cargo-release`][cr] to publish a release.
 
 ### Changed
 - Move to <https://codeberg.org/swsnr/systemd-journal-logger.rs>.
+- Bump MSRV to 1.68.
 
 ## [2.2.1] – 2025-03-25
 

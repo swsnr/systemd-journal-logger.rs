@@ -11,9 +11,8 @@ description = "Systemd journal logger for the log facade."
 categories = ["development-tools::debugging"]
 keywords = ["logging", "systemd", "journal"]
 edition = "2021"
-# When updating the rust-version, update the version of the compiler used
-# in the pipelines under .github/workflows
-rust-version = "1.66"
+# When updating the rust-version, update the toolchain version in justfile too
+rust-version = "1.68"
 
 [dependencies]
 log = { version = "^0.4", features = ["std", "kv"] }
