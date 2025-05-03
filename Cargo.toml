@@ -1,6 +1,6 @@
 [package]
 name = "systemd-journal-logger"
-version = "2.2.1"
+version = "2.2.2"
 authors = ["Sebastian Wiesner <sebastian@swsnr.de>"]
 license = "MIT OR Apache-2.0"
 readme = "README.md"

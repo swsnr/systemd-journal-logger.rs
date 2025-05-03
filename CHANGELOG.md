@@ -11,6 +11,8 @@ Run [`cargo-release`][cr] to publish a release.
 
 ## [Unreleased]
 
+## [2.2.2] – 2025-05-03
+
 ### Changed
 - Move to <https://codeberg.org/swsnr/systemd-journal-logger.rs>.
 - Bump MSRV to 1.68.
@@ -151,7 +153,8 @@ Initial release with `systemd_journal_logger::LOG` and `systemd_journal_logger::
 
 Do **not use** this version; it looses multiline messages and has been yanked from crates.io.
 
-[Unreleased]: https://codeberg.org/swsnr/systemd-journal-logger.rs/compare/v2.2.1...HEAD
+[Unreleased]: https://codeberg.org/swsnr/systemd-journal-logger.rs/compare/v2.2.2...HEAD
+[2.2.2]: https://codeberg.org/swsnr/systemd-journal-logger.rs/compare/v2.2.1...v2.2.2
 [2.2.1]: https://codeberg.org/swsnr/systemd-journal-logger.rs/compare/v2.2.0...v2.2.1
 [2.2.0]: https://codeberg.org/swsnr/systemd-journal-logger.rs/compare/v2.1.1...v2.2.0
 [2.1.1]: https://codeberg.org/swsnr/systemd-journal-logger.rs/compare/v2.1.0...v2.1.1
