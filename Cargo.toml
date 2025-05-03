@@ -45,9 +45,3 @@ pre-release-replacements = [
     { file = "CHANGELOG.md", search = "HEAD", replace = "{{tag_name}}", exactly = 1 },
     { file = "CHANGELOG.md", search = "\\[Unreleased\\]: ", replace = "[Unreleased]: https://codeberg.org/swsnr/systemd-journal-logger.rs/compare/{{tag_name}}...HEAD\n[{{version}}]: ", exactly = 1 },
 ]
-# Github actions checks this for us.
-verify = false
-# Github actions does this for us.
-publish = false
-# We push commit and tag separately to ensure that the pipeline passes for the tag
-push = false

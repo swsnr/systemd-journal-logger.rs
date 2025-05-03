@@ -18,3 +18,6 @@ test-all: vet
     cargo +1.68 build --locked --all-targets
     # semver checks
     cargo semver-checks
+
+release *ARGS: test-all
+    cargo release {{ARGS}}
