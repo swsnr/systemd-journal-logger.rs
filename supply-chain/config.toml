@@ -26,8 +26,8 @@ audit-as-crates-io = false
 version = "0.15.10"
 criteria = "safe-to-run"
 
-[[exemptions.once_cell]]
-version = "1.20.2"
+[[exemptions.encode_unicode]]
+version = "1.0.0"
 criteria = "safe-to-run"
 
 [[exemptions.serde_fmt]]
@@ -85,6 +85,10 @@ criteria = "safe-to-deploy"
 [[exemptions.value-bag-sval2]]
 version = "1.10.0"
 criteria = "safe-to-deploy"
+
+[[exemptions.wasi]]
+version = "0.11.0+wasi-snapshot-preview1"
+criteria = "safe-to-run"
 
 [[exemptions.zerocopy]]
 version = "0.7.35"
