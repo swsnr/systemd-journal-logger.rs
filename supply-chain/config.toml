@@ -34,10 +34,6 @@ criteria = "safe-to-run"
 version = "1.0.3"
 criteria = "safe-to-deploy"
 
-[[exemptions.similar]]
-version = "2.7.0"
-criteria = "safe-to-run"
-
 [[exemptions.similar-asserts]]
 version = "1.6.1"
 criteria = "safe-to-run"
