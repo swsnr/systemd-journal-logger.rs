@@ -2,7 +2,7 @@ default:
     just --list
 
 vet:
-    cargo vet --locked
+    cargo +stable vet --locked
 
 test-all: vet
     cargo +stable deny --all-features --locked check
@@ -15,7 +15,7 @@ test-all: vet
     # MSRV
     cargo +1.68 build --locked --all-targets
     # semver checks
-    cargo semver-checks
+    cargo +stable semver-checks
 
 release *ARGS: test-all
-    cargo release {{ARGS}}
+    cargo +stable release {{ARGS}}
