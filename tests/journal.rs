@@ -129,7 +129,7 @@ where
 pub fn read_current_process(target: &str) -> Vec<HashMap<String, FieldValue>> {
     // Filter by the PID of the current test process and the module path
     read(
-        Journal::User,
+        Journal::System,
         vec![
             format!("_PID={}", std::process::id()),
             format!("TARGET={}", target),
